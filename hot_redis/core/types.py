@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import collections
 import operator
 import os
@@ -5,10 +6,8 @@ import time
 import uuid
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
-from redis import ResponseError
-from redis.client import Redis
 
-import redis
+from redis import ResponseError
 from redis.client import Redis, zset_score_pairs
 
 
