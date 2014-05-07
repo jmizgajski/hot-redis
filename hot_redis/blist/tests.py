@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from blist import sortedset
-from hot_redis.blist.types import SortedSet
 
+from hot_redis.blist.types import SortedSet
 from hot_redis.core.tests import BaseTestCase
 
 
@@ -74,6 +74,42 @@ class SortedSetTest(BaseTestCase):
         self.assertIn(1, a)
         self.assertNotIn(4, a)
 
+    def test_slice(self):
+        values = [
+            ("kobyla", 7),
+            ("ma", 6),
+            ("maly", 5),
+            ("bok", 4),
+            ("jan", 3),
+            ("maria", 2),
+            ("rokita", 1),
+        ]
+        subject = SortedSet(values, lambda x: x[1])
+
+        calls = [
+            (lambda i: [x for x in i], 'iter'),
+            (lambda i: i[:], '[:]'),
+            (lambda i: i[3:4], '[3:4]'),
+            (lambda i: i[-4:3], '[-4:3]'),
+            (lambda i: i[2:], '[2:]'),
+            (lambda i: i[:2], '[:2]'),
+            (lambda i: i[2:1], '[2:1]'),
+            (lambda i: i[-1:-2], '[-1:-2]')
+        ]
+
+        for call, code in calls:
+            expected = call(values)
+            result = call(subject)
+            self.assertEquals(
+                result,
+                expected,
+                "Results not equal when called with call={code}, "
+                "got result={result}, expected={expected}".format(
+                    code=code, result=result,
+                    expected=expected
+                )
+            )
+
     def test_intersection(self):
         self.fail("To be implemented")
 
@@ -99,7 +135,4 @@ class SortedSetTest(BaseTestCase):
         self.fail("To be implemented")
 
     def test_bisect(self):
-        self.fail("To be implemented")
-
-    def test_slice(self):
         self.fail("To be implemented")
