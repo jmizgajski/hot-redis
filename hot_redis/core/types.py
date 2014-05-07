@@ -160,14 +160,14 @@ class Base(object):
     Redis client.
     """
 
-    def __init__(self, initial=None, key=None, client=None):
+    def __init__(self, initial=None, redis_key=None, client=None):
         if not isinstance(client, HotClient):
             client = HotClient(client) or default_client()
         else:
             client = client or default_client()
         self.client = client
 
-        self.key = key or str(uuid.uuid4())
+        self.key = redis_key or str(uuid.uuid4())
         if initial:
             self.value = initial
 
@@ -733,7 +733,7 @@ class SetQueue(Queue):
 
     def __init__(self, *args, **kwargs):
         super(SetQueue, self).__init__(*args, **kwargs)
-        self.set = Set(key="%s-set" % self.key)
+        self.set = Set(redis_key="%s-set" % self.key)
 
     def get(self, *args, **kwargs):
         item = super(SetQueue, self).get(*args, **kwargs)
@@ -908,8 +908,9 @@ class MultiSet(collections.MutableMapping, Base):
 
     def __init__(
             self, initial=None, client=None,
-            iterable=None, key=None, **kwargs):
-        super(MultiSet, self).__init__(initial=initial, client=client, key=key)
+            iterable=None, redis_key=None, **kwargs):
+        super(MultiSet, self).__init__(
+            initial=initial, client=client, redis_key=redis_key)
         self.update(iterable=iterable, **kwargs)
 
     def __len__(self):
