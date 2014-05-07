@@ -11,16 +11,22 @@ from hot_redis.conf import PICKLE_PROTOCOL
 
 
 class SortedSet(collections.Sequence, collections.MutableSet, Base):
+    def serialize(self, item):
+        return pc.dumps(item, PICKLE_PROTOCOL)
+
+    def deserialize(self, serialized_item):
+        return pc.loads(serialized_item)
+
     def __getitem__(self, i):
         if not isinstance(i, slice):
-            return pc.loads(self.zrange(i, i, desc=True)[0])
+            return self.deserialize(self.zrange(i, i, desc=True)[0])
         if i.step:
             raise NotImplementedError("step not supported")
 
         start = i.start if i.start is not None else 0
         stop = i.stop if i.stop is not None else 0
         return [
-            pc.loads(instance)
+            self.deserialize(instance)
             for instance in self.zrange(start, stop - 1, desc=True)]
 
     def __len__(self):
@@ -43,7 +49,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
     def __iter__(self):
         if self._eager_iterator:
-            values = (pc.loads(pickled_value)
+            values = (self.deserialize(pickled_value)
                       for pickled_value in self.zrange(0, -1, desc=True))
         else:
             values = super(SortedSet, self).__iter__()
@@ -62,21 +68,21 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         return float(self._key_producer(value))
 
     def add(self, value):
-        self.zadd(**{pc.dumps(value, PICKLE_PROTOCOL): self._get_key(value)})
+        self.zadd(**{self.serialize(value): self._get_key(value)})
 
     def discard(self, value):
-        self.zrem(pc.dumps(value, PICKLE_PROTOCOL))
+        self.zrem(self.serialize(value))
 
     def update(self, *iterables):
         chain.from_iterable(iterables)
-        kwargs = {pc.dumps(value, PICKLE_PROTOCOL): self._get_key(value)
+        kwargs = {self.serialize(value): self._get_key(value)
                   for value in chain.from_iterable(iterables)}
         self.zadd(**kwargs)
 
     @property
     def value(self):
         return blist.sortedset(
-            (pc.loads(value) for value in self.zrange(0, -1)),
+            (self.deserialize(value) for value in self.zrange(0, -1)),
             self._key_producer)
 
     @value.setter
