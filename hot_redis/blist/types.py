@@ -19,7 +19,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
     def __getitem__(self, i):
         if not isinstance(i, slice):
-            return self.deserialize(self.zrange(i, i, desc=True)[0])
+            return self.deserialize(self.zrange(i, i)[0])
         if i.step:
             raise NotImplementedError("step not supported")
 
@@ -27,7 +27,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         stop = i.stop if i.stop is not None else 0
         return [
             self.deserialize(instance)
-            for instance in self.zrange(start, stop - 1, desc=True)]
+            for instance in self.zrange(start, stop - 1)]
 
     def __len__(self):
         return self.zcard()
@@ -50,7 +50,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
     def __iter__(self):
         if self._eager_iterator:
             values = (self.deserialize(pickled_value)
-                      for pickled_value in self.zrange(0, -1, desc=True))
+                      for pickled_value in self.zrange(0, -1))
         else:
             values = super(SortedSet, self).__iter__()
         for value in values:
