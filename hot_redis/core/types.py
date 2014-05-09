@@ -42,6 +42,7 @@ class HotClient(object):
     _ATOMS_FILE_NAME = "core_atoms.lua"
     _BIT_FILE_NAME = "bit.lua"
     _MULTI_FILE_NAME = "multi.lua"
+    _BLIST_FILE_NAME = "blist_atoms.lua"
 
     def __init__(self, client=None, *args, **kwargs):
         self._client = client
@@ -50,6 +51,7 @@ class HotClient(object):
 
         self._bind_atoms()
         self._bind_multi()
+        self._bind_blist()
 
     def _bind_atoms(self):
         with open(self._get_lua_path(self._BIT_FILE_NAME)) as f:
@@ -70,8 +72,14 @@ class HotClient(object):
             self._bind_lua_method(name, snippet)
 
     def _bind_multi(self):
-        for name, snippet in self._split_lua_file_into_funcs("multi.lua"):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._MULTI_FILE_NAME):
             self._bind_private_lua_script(name, snippet)
+
+    def _bind_blist(self):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._BLIST_FILE_NAME):
+            self._bind_lua_method(name, snippet)
 
     @staticmethod
     def _get_lua_path(name):

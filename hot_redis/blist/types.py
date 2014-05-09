@@ -67,6 +67,9 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
     def _get_key(self, value):
         return float(self._key_producer(value))
 
+    def _to_keys(self, sets):
+        return [s.key for s in sets]
+
     def add(self, value):
         self.zadd(**{self.serialize(value): self._get_key(value)})
 
@@ -78,6 +81,11 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         kwargs = {self.serialize(value): self._get_key(value)
                   for value in chain.from_iterable(iterables)}
         self.zadd(**kwargs)
+
+    def intersection_update(self, set):
+        keys = [self.key, set]
+        self.sorted_set_intersection_update(set.key)
+        return self
 
     @property
     def value(self):
