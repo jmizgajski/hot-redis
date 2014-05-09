@@ -39,7 +39,7 @@ class HotClient(object):
     A Redis client wrapper that loads Lua functions and creates
     client methods for calling them.
     """
-    _ATOMS_FILE_NAME = "atoms.lua"
+    _ATOMS_FILE_NAME = "core_atoms.lua"
     _BIT_FILE_NAME = "bit.lua"
     _MULTI_FILE_NAME = "multi.lua"
 
