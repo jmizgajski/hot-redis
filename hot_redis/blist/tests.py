@@ -111,19 +111,43 @@ class SortedSetTest(BaseTestCase):
             )
 
     def test_intersection_update(self):
-        a = SortedSet([1,2,3,4])
-        b = SortedSet([2,3,5])
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
 
         a.intersection_update(b)
 
-        self.assertIn(2,a)
-        self.assertIn(3,a)
-        self.assertNotIn(1,a)
-        self.assertNotIn(4,a)
-        self.assertNotIn(5,a)
+        for e in x.intersection(y):
+            self.assertIn(e, a)
+
+        for e in x.difference(y):
+            self.assertNotIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
 
     def test_intersection(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        c = a.intersection(b)
+
+        for e in x.intersection(y):
+            self.assertIn(e, c)
+
+        for e in x.difference(y):
+            self.assertNotIn(e, c)
+
+        for e in x:
+            self.assertIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
 
     def test_difference(self):
         self.fail("To be implemented")

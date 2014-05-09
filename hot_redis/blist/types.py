@@ -83,9 +83,13 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         self.zadd(**kwargs)
 
     def intersection_update(self, set):
-        keys = [self.key, set]
         self.sorted_set_intersection_update(set.key)
         return self
+
+    def intersection(self, set):
+        b = SortedSet()
+        self.sorted_set_intersection(b.key, set.key)
+        return b
 
     @property
     def value(self):
