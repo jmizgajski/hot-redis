@@ -98,13 +98,18 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         else:
             return False
 
-    def difference_update(self, set):
+    def difference(self, set):
         result = SortedSet()
         self.sorted_set_difference(result.key, set.key)
         return result
 
-    def difference(self, set):
+    def difference_update(self, set):
         raise NotImplementedError('This would remove all scores in the set')
+
+    def symmetric_difference_update(self, set):
+        result = SortedSet()
+
+        return result
 
     @property
     def value(self):
