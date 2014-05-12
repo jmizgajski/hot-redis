@@ -103,6 +103,9 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         self.sorted_set_difference(result.key, set.key)
         return result
 
+    def difference(self, set):
+        raise NotImplementedError('This would remove all scores in the set')
+
     @property
     def value(self):
         return blist.sortedset(
