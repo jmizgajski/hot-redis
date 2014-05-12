@@ -162,7 +162,16 @@ class SortedSetTest(BaseTestCase):
         self.fail("To be implemented")
 
     def test_disjoint(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+        z = set([6,7,8])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+        c = SortedSet(z)
+
+        self.assertFalse(a.isdisjoint(b))
+        self.assertTrue(a.isdisjoint(c))
 
     def test_cmp(self):
         self.fail("To be implemented")

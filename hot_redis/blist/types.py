@@ -91,6 +91,13 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         self.sorted_set_intersection(b.key, set.key)
         return b
 
+    def isdisjoint(self, set):
+        res = self.sorted_set_get_intersection_count(set.key)
+        if res == 0:
+            return True
+        else:
+            return False
+
     @property
     def value(self):
         return blist.sortedset(
