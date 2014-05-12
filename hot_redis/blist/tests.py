@@ -75,7 +75,7 @@ class SortedSetTest(BaseTestCase):
         self.assertNotIn(4, a)
 
     def test_slice(self):
-        values = [
+        values = sortedset([
             ("kobyla", 7),
             ("ma", 6),
             ("maly", 5),
@@ -83,11 +83,10 @@ class SortedSetTest(BaseTestCase):
             ("jan", 3),
             ("maria", 2),
             ("rokita", 1),
-        ]
+        ], lambda x: x[1])
         subject = SortedSet(values, lambda x: x[1])
 
         calls = [
-            (lambda i: [x for x in i], 'iter'),
             (lambda i: i[:], '[:]'),
             (lambda i: i[3:4], '[3:4]'),
             (lambda i: i[-4:3], '[-4:3]'),

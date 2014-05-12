@@ -25,9 +25,9 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
         start = i.start if i.start is not None else 0
         stop = i.stop if i.stop is not None else 0
-        return [
+        return SortedSet([
             self.deserialize(instance)
-            for instance in self.zrange(start, stop - 1)]
+            for instance in self.zrange(start, stop - 1)], key=self._key_producer)
 
     def __len__(self):
         return self.zcard()
