@@ -230,6 +230,3 @@ class SortedSetTest(BaseTestCase):
 
         self.assertFalse(a > c)
         self.assertFalse(c > a)
-
-    def test_bisect(self):
-        self.fail("To be implemented")
