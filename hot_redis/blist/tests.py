@@ -210,7 +210,25 @@ class SortedSetTest(BaseTestCase):
         self.assertTrue(a.isdisjoint(c))
 
     def test_cmp(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3])
+        z = set([3,4,8])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+        c = SortedSet(z)
+
+        self.assertTrue(b < a)
+        self.assertTrue(a > b)
+
+        self.assertFalse(b > a)
+        self.assertFalse(a < b)
+
+        self.assertFalse(a < c)
+        self.assertFalse(c < a)
+
+        self.assertFalse(a > c)
+        self.assertFalse(c > a)
 
     def test_bisect(self):
         self.fail("To be implemented")
