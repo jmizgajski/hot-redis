@@ -108,7 +108,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
     def symmetric_difference_update(self, set):
         result = SortedSet()
-
+        self.sorted_set_symmetrical_difference(result.key, set.key)
         return result
 
     @property
