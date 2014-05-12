@@ -170,10 +170,12 @@ class SortedSetTest(BaseTestCase):
             self.assertIn(e, b)
 
     def test_difference_update(self):
-        self.fail("To be implemented")
+        a = SortedSet()
+        self.assertRaises(NotImplementedError, a.difference_update, a)
 
     def test_symmetric_difference_update(self):
-        self.fail("To be implemented")
+        a = SortedSet()
+        self.assertRaises(NotImplementedError, a.symmetric_difference_update, a)
 
     def test_symmetric_difference(self):
         x = set([1,2,3])
