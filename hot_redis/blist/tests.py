@@ -149,10 +149,28 @@ class SortedSetTest(BaseTestCase):
         for e in y:
             self.assertIn(e, b)
 
-    def test_difference(self):
-        self.fail("To be implemented")
-
     def test_difference_update(self):
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        c = a.difference_update(b)
+
+        for e in x.difference(y):
+            self.assertIn(e, c)
+
+        for e in x.intersection(y):
+            self.assertNotIn(e, c)
+
+        for e in x:
+            self.assertIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
+
+    def test_difference(self):
         self.fail("To be implemented")
 
     def test_symmetric_difference(self):

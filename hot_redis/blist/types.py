@@ -87,9 +87,9 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         return self
 
     def intersection(self, set):
-        b = SortedSet()
-        self.sorted_set_intersection(b.key, set.key)
-        return b
+        result = SortedSet()
+        self.sorted_set_intersection(result.key, set.key)
+        return result
 
     def isdisjoint(self, set):
         res = self.sorted_set_get_intersection_count(set.key)
@@ -97,6 +97,11 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
             return True
         else:
             return False
+
+    def difference_update(self, set):
+        result = SortedSet()
+        self.sorted_set_difference(result.key, set.key)
+        return result
 
     @property
     def value(self):
