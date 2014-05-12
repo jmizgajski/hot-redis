@@ -36,7 +36,7 @@ function sorted_set_difference()
     redis.call('ZUNIONSTORE', target_key, 1, temp1)
 end
 
-function sorted_set_symmetrical_difference()
+function sorted_set_symmetric_difference()
     local temp1 = KEYS[1] .. 'symdiff1'
     local temp2 = KEYS[1] .. 'symdiff2'
     local temp3 = KEYS[1] .. 'symdiff3'
@@ -55,7 +55,7 @@ function sorted_set_symmetrical_difference()
 
     redis.call('SINTERSTORE', temp1, temp1, temp2)
 
-    --subtract intersection from uniont
+    --subtract intersection from union
     redis.call('SDIFFSTORE', temp1, temp3, temp1)
 
     redis.call('ZUNIONSTORE', target_key, 1, temp1)

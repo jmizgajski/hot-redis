@@ -106,10 +106,14 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
     def difference_update(self, set):
         raise NotImplementedError('This would remove all scores in the set')
 
-    def symmetric_difference_update(self, set):
+    def symmetric_difference(self, set):
         result = SortedSet()
-        self.sorted_set_symmetrical_difference(result.key, set.key)
+        self.sorted_set_symmetric_difference(result.key, set.key)
         return result
+
+    def symmetric_difference_update(self, set):
+        raise NotImplementedError('This would remove all scores in the set')
+
 
     @property
     def value(self):

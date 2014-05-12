@@ -183,7 +183,7 @@ class SortedSetTest(BaseTestCase):
         a = SortedSet(x)
         b = SortedSet(y)
 
-        c = a.symmetric_difference_update(b)
+        c = a.symmetric_difference(b)
 
         for e in x.symmetric_difference(y):
             self.assertIn(e, c)
