@@ -137,6 +137,17 @@ class HotClient(object):
         """
         return Ranking(self._rank_sets_by_cardinality, keys)
 
+    def rank_zsets_by_cardinality(self, *keys):
+        """
+        Creates a temporary ZSET with SET keys as entries and their
+        *ZCARD* as scores. Uses ZREVRANGE .. WITHSCORES, to return keys and
+        cardinalities sorted from largest to smallest.
+        :param keys: keys of the sets you want to rank
+        :return: :rtype: Ranking
+        :raise ValueError: when not enough keys are provided
+        """
+        return Ranking(self._rank_zsets_by_cardinality, keys)
+
     def __getattr__(self, name):
         if name in self.__dict__:
             return super(HotClient, self).__getattribute__(name)

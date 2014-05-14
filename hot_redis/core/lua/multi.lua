@@ -26,3 +26,18 @@ function rank_sets_by_cardinality()
     redis.call('DEL', ranker_key)
     return result
 end
+
+function rank_zsets_by_cardinality()
+    local ranker_key = "__tmp__.hot_redis.rank_zsets_by_cardinality." ..
+            KEYS[1]
+    for _, key in pairs(KEYS) do
+        redis.call('ZADD',
+            ranker_key,
+            redis.call('ZCARD', key),
+            key)
+    end
+    local result = redis.call('ZREVRANGE', ranker_key, ARGV[1], ARGV[2],
+        'WITHSCORES')
+    redis.call('DEL', ranker_key)
+    return result
+end
