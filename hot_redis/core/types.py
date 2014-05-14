@@ -1076,7 +1076,7 @@ class MultiSet(collections.MutableMapping, Base):
             iterables.append(self._to_kv_iterable(kwds))
         if iterables:
             kvs = list(chain.from_iterable(iterables))
-            with self.pipeline(transaction=False) as pipe:
+            with self.pipeline() as pipe:
                 for key, value in kvs:
                     pipe.zincrby(key, value)
 

@@ -114,12 +114,16 @@ class LuaMultiMethodsTests(BaseTestCase):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("z%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
+        client = core.default_client()
         sets = [
-            core.MultiSet(range(int(card)), redis_key=key)
+            core.MultiSet(
+                initial=[(str(x), x) for x in range(int(card))],
+                redis_key=key,
+                client=client
+            )
             for key, card
             in keys_with_cardinalities
         ]
-        client = core.default_client()
 
         calls = [
             (lambda i: [x for x in i], 'iter'),
