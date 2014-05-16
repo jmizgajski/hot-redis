@@ -42,7 +42,7 @@ function rank_zsets_by_cardinality()
 end
 
 function rank_by_sum_of_decaying_score()
-    local min, max, from, halflife, cache_timeout = unpack(ARGS)
+    local min, max, from, halflife, cache_timeout = unpack(ARGV)
     local ranker_key = "__tmp__.hot_redis.rank_by_sum_of_decaying_score"
     for _, key in ipairs(KEYS) do
         local score_cache_key = key .. ':sum_of_decaying_scores:' .. halflife
