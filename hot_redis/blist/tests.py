@@ -75,7 +75,7 @@ class SortedSetTest(BaseTestCase):
         self.assertNotIn(4, a)
 
     def test_slice(self):
-        values = [
+        values = sortedset([
             ("kobyla", 7),
             ("ma", 6),
             ("maly", 5),
@@ -83,11 +83,10 @@ class SortedSetTest(BaseTestCase):
             ("jan", 3),
             ("maria", 2),
             ("rokita", 1),
-        ]
+        ], lambda x: x[1])
         subject = SortedSet(values, lambda x: x[1])
 
         calls = [
-            (lambda i: [x for x in i], 'iter'),
             (lambda i: i[:], '[:]'),
             (lambda i: i[3:4], '[3:4]'),
             (lambda i: i[-4:3], '[-4:3]'),
@@ -110,29 +109,124 @@ class SortedSetTest(BaseTestCase):
                 )
             )
 
-    def test_intersection(self):
-        self.fail("To be implemented")
-
     def test_intersection_update(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        a.intersection_update(b)
+
+        for e in x.intersection(y):
+            self.assertIn(e, a)
+
+        for e in x.difference(y):
+            self.assertNotIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
+
+    def test_intersection(self):
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        c = a.intersection(b)
+
+        for e in x.intersection(y):
+            self.assertIn(e, c)
+
+        for e in x.difference(y):
+            self.assertNotIn(e, c)
+
+        for e in x:
+            self.assertIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
 
     def test_difference(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        c = a.difference(b)
+
+        for e in x.difference(y):
+            self.assertIn(e, c)
+
+        for e in x.intersection(y):
+            self.assertNotIn(e, c)
+
+        for e in x:
+            self.assertIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
 
     def test_difference_update(self):
-        self.fail("To be implemented")
-
-    def test_symmetric_difference(self):
-        self.fail("To be implemented")
+        a = SortedSet()
+        self.assertRaises(NotImplementedError, a.difference_update, a)
 
     def test_symmetric_difference_update(self):
-        self.fail("To be implemented")
+        a = SortedSet()
+        self.assertRaises(NotImplementedError, a.symmetric_difference_update, a)
+
+    def test_symmetric_difference(self):
+        x = set([1,2,3])
+        y = set([2,3,4])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+
+        c = a.symmetric_difference(b)
+
+        for e in x.symmetric_difference(y):
+            self.assertIn(e, c)
+
+        for e in x.intersection(y):
+            self.assertNotIn(e, c)
+
+        for e in x:
+            self.assertIn(e, a)
+
+        for e in y:
+            self.assertIn(e, b)
 
     def test_disjoint(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3,5])
+        z = set([6,7,8])
+
+        a = SortedSet(x)
+        b = SortedSet(y)
+        c = SortedSet(z)
+
+        self.assertFalse(a.isdisjoint(b))
+        self.assertTrue(a.isdisjoint(c))
 
     def test_cmp(self):
-        self.fail("To be implemented")
+        x = set([1,2,3,4])
+        y = set([2,3])
+        z = set([3,4,8])
 
-    def test_bisect(self):
-        self.fail("To be implemented")
+        a = SortedSet(x)
+        b = SortedSet(y)
+        c = SortedSet(z)
+
+        self.assertTrue(b < a)
+        self.assertTrue(a > b)
+
+        self.assertFalse(b > a)
+        self.assertFalse(a < b)
+
+        self.assertFalse(a < c)
+        self.assertFalse(c < a)
+
+        self.assertFalse(a > c)
+        self.assertFalse(c > a)
