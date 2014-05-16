@@ -12,22 +12,27 @@ from redis.client import Redis, zset_score_pairs
 
 
 class Ranking(object):
-    def __init__(self, ranking_script, keys_):
+    def __init__(self, ranking_script, keys_, *script_args):
         if len(keys_) < 2:
             raise ValueError("You have to have at least two lists to compare")
 
         self.keys = keys_
         self.ranker = ranking_script
+        self.script_args = script_args
 
     def __getitem__(self, i):
         if not isinstance(i, slice):
-            response = self.ranker(keys=self.keys, args=(i, i))
+            args = [i, i]
+            args.extend(self.script_args)
+            response = self.ranker(keys=self.keys, args=args)
             return zset_score_pairs(response, withscores=True)
 
         start = i.start if i.start is not None else 0
         stop = i.stop if i.stop is not None else 0
 
-        response = self.ranker(keys=self.keys, args=(start, stop - 1))
+        args = [start, stop - 1]
+        args.extend(self.script_args)
+        response = self.ranker(keys=self.keys, args=args)
         return zset_score_pairs(response, withscores=True)
 
     def __iter__(self):
@@ -147,6 +152,29 @@ class HotClient(object):
         :raise ValueError: when not enough keys are provided
         """
         return Ranking(self._rank_zsets_by_cardinality, keys)
+
+    def rank_by_sum_of_decaying_score(
+            self, from_, halflife, cache_timeout, *keys):
+        """
+        Creates a temporary ZSET with SET keys as entries and sums of their
+        decayed (standard halflife decay function) scores as scores. Uses
+        ZREVRANGE .. WITHSCORES, to return
+        keys and these sums sorted from largest to smallest. Useful for
+        finiding recently most active zsets assuming that the score is a
+        unix timestamp.
+        :param from_: current time in unix timestamp, the difference from_ -
+        SCORE is used as age of the key in ZSET
+        :param halflife: the halflife of the decay function
+        :param cache_timeout: if greater than 0 the resulting sum of scores
+        of each ZSET in key's will be cached for that many seconds. Then
+        when this function will be called again with the same halflife the
+        cached value will be returned (from_ will have no effect)
+        :param keys: keys of the zsets you want to rank
+        :return: :rtype: Ranking
+        :raise ValueError: when not enough keys are provided
+        """
+        return Ranking(self._rank_by_sum_of_decaying_score, keys, from_,
+                       halflife, cache_timeout)
 
     def __getattr__(self, name):
         if name in self.__dict__:
