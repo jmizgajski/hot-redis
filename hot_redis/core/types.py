@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import collections
 import operator
 import os
@@ -5,10 +6,8 @@ import time
 import uuid
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
-from redis import ResponseError
-from redis.client import Redis
 
-import redis
+from redis import ResponseError
 from redis.client import Redis, zset_score_pairs
 
 
@@ -40,9 +39,10 @@ class HotClient(object):
     A Redis client wrapper that loads Lua functions and creates
     client methods for calling them.
     """
-    _ATOMS_FILE_NAME = "atoms.lua"
+    _ATOMS_FILE_NAME = "core_atoms.lua"
     _BIT_FILE_NAME = "bit.lua"
     _MULTI_FILE_NAME = "multi.lua"
+    _BLIST_FILE_NAME = "blist_atoms.lua"
 
     def __init__(self, client=None, *args, **kwargs):
         self._client = client
@@ -51,6 +51,7 @@ class HotClient(object):
 
         self._bind_atoms()
         self._bind_multi()
+        self._bind_blist()
 
     def _bind_atoms(self):
         with open(self._get_lua_path(self._BIT_FILE_NAME)) as f:
@@ -71,8 +72,14 @@ class HotClient(object):
             self._bind_lua_method(name, snippet)
 
     def _bind_multi(self):
-        for name, snippet in self._split_lua_file_into_funcs("multi.lua"):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._MULTI_FILE_NAME):
             self._bind_private_lua_script(name, snippet)
+
+    def _bind_blist(self):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._BLIST_FILE_NAME):
+            self._bind_lua_method(name, snippet)
 
     @staticmethod
     def _get_lua_path(name):
@@ -236,14 +243,14 @@ class Base(object):
     Redis client.
     """
 
-    def __init__(self, initial=None, key=None, client=None):
+    def __init__(self, initial=None, redis_key=None, client=None):
         if not isinstance(client, HotClient):
             client = HotClient(client) or default_client()
         else:
             client = client or default_client()
         self.client = client
 
-        self.key = key or str(uuid.uuid4())
+        self.key = redis_key or str(uuid.uuid4())
         if initial:
             self.value = initial
 
@@ -809,7 +816,7 @@ class SetQueue(Queue):
 
     def __init__(self, *args, **kwargs):
         super(SetQueue, self).__init__(*args, **kwargs)
-        self.set = Set(key="%s-set" % self.key)
+        self.set = Set(redis_key="%s-set" % self.key)
 
     def get(self, *args, **kwargs):
         item = super(SetQueue, self).get(*args, **kwargs)
@@ -984,8 +991,9 @@ class MultiSet(collections.MutableMapping, Base):
 
     def __init__(
             self, initial=None, client=None,
-            iterable=None, key=None, **kwargs):
-        super(MultiSet, self).__init__(initial=initial, client=client, key=key)
+            iterable=None, redis_key=None, **kwargs):
+        super(MultiSet, self).__init__(
+            initial=initial, client=client, redis_key=redis_key)
         self.update(iterable=iterable, **kwargs)
 
     def __len__(self):
