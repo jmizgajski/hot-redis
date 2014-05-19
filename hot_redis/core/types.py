@@ -1115,6 +1115,7 @@ class MultiSet(collections.MutableMapping, Base):
             with self.pipeline() as pipe:
                 for key, value in kvs:
                     pipe.zincrby(self.key, key, value)
+                pipe.execute()
 
     def subtract(self, iterable=None, **kwds):
         iterables = []
@@ -1127,6 +1128,7 @@ class MultiSet(collections.MutableMapping, Base):
             with self.pipeline(transaction=False) as pipe:
                 for key, value in kvs:
                     pipe.zincrby(self.key, key, -value)
+                pipe.execute()
 
     def copy(self):
         return self.__class__(self.values)

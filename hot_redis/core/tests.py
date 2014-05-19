@@ -115,7 +115,8 @@ class LuaMultiMethodsTests(BaseTestCase):
         _keys = [("z%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
         client = core.default_client()
-        sets = [
+
+        [
             core.MultiSet(
                 initial=[(str(x), x) for x in range(int(card))],
                 redis_key=key,
@@ -1018,6 +1019,7 @@ class CounterTest(object):
     def test_update(self):
         a = "wagwaan"
         b = {"hotskull": 420}
+        b1 = [('1', 1), ('2',2), ('3',3)]
         c = collections.Counter(a)
         d = core.MultiSet(a)
         c.update(core.MultiSet(a))
@@ -1043,6 +1045,10 @@ class CounterTest(object):
         c.update(**b)
         d.update(**b)
         self.assertEqual(d, c)
+
+        c.update(b1)
+        d.update(b1)
+        self.assertEqual(d,c)
 
     def test_subtract(self):
         a = "wagwaan"
