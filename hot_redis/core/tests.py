@@ -50,7 +50,7 @@ class LuaMultiMethodsTests(BaseTestCase):
             (lambda i: i[-4:3], '[-4:3]'),
             (lambda i: i[2:], '[2:]'),
             (lambda i: i[:2], '[:2]'),
-            #empty),
+            # empty),
             (lambda i: i[2:1], '[2:1]'),
             (lambda i: i[-1:-2], '[-1:-2]')
         ]
@@ -73,7 +73,7 @@ class LuaMultiMethodsTests(BaseTestCase):
 
     def test_rank_sets_by_cardinality(self):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
-        _keys = [("l%d" % card) for card in cardinalities]
+        _keys = [("s%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
         sets = [
             core.Set(range(int(card)), redis_key=key)
@@ -89,7 +89,7 @@ class LuaMultiMethodsTests(BaseTestCase):
             (lambda i: i[-4:3], '[-4:3]'),
             (lambda i: i[2:], '[2:]'),
             (lambda i: i[:2], '[:2]'),
-            #empty),
+            # empty),
             (lambda i: i[2:1], '[2:1]'),
             (lambda i: i[-1:-2], '[-1:-2]')
         ]
@@ -108,7 +108,51 @@ class LuaMultiMethodsTests(BaseTestCase):
             )
 
         with self.assertRaises(ValueError):
-            client.rank_lists_by_length('only_one_key'),
+            client.rank_sets_by_cardinality('only_one_key'),
+
+    def test_rank_zsets_by_cardinality(self):
+        cardinalities = (61., 60., 5., 4., 3., 2., 1.)
+        _keys = [("z%d" % card) for card in cardinalities]
+        keys_with_cardinalities = zip(_keys, cardinalities)
+        client = core.default_client()
+
+        [
+            core.MultiSet(
+                initial=[(str(x), x) for x in range(int(card))],
+                redis_key=key,
+                client=client
+            )
+            for key, card
+            in keys_with_cardinalities
+        ]
+
+        calls = [
+            (lambda i: [x for x in i], 'iter'),
+            (lambda i: i[:], '[:]'),
+            (lambda i: i[3:4], '[3:4]'),
+            (lambda i: i[-4:3], '[-4:3]'),
+            (lambda i: i[2:], '[2:]'),
+            (lambda i: i[:2], '[:2]'),
+            # empty),
+            (lambda i: i[2:1], '[2:1]'),
+            (lambda i: i[-1:-2], '[-1:-2]')
+        ]
+
+        for call, code in calls:
+            expected = call(keys_with_cardinalities)
+            result = call(client.rank_zsets_by_cardinality(*_keys))
+            self.assertEquals(
+                result,
+                expected,
+                "Results not equal when called with call={code}, "
+                "got result={result}, expected={expected}".format(
+                    code=code, result=result,
+                    expected=expected
+                )
+            )
+
+        with self.assertRaises(ValueError):
+            client.rank_zsets_by_cardinality('only_one_key'),
 
 
 class ListTests(BaseTestCase):
@@ -975,6 +1019,7 @@ class CounterTest(object):
     def test_update(self):
         a = "wagwaan"
         b = {"hotskull": 420}
+        b1 = [('1', 1), ('2',2), ('3',3)]
         c = collections.Counter(a)
         d = core.MultiSet(a)
         c.update(core.MultiSet(a))
@@ -1000,6 +1045,10 @@ class CounterTest(object):
         c.update(**b)
         d.update(**b)
         self.assertEqual(d, c)
+
+        c.update(b1)
+        d.update(b1)
+        self.assertEqual(d,c)
 
     def test_subtract(self):
         a = "wagwaan"
