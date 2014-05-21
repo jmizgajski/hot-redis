@@ -51,17 +51,12 @@ function rank_by_sum_of_decaying_score()
         local score = redis.call('GET', score_cache_key)
         if not score then
             score = 0
-            local cursor, values = "0", {}
-            while 1 do
-                values = redis.call('ZRANGE', key, 0, -1, 'WITHSCORES')
-                for index, val in ipairs(values) do
-                    if index % 2 == 0 then
-                        score = score + math.pow(0.5,
-                            ((from - val) / halflife))
-                    end
+            local values = redis.call('ZRANGE', key, 0, -1, 'WITHSCORES')
+            for index, val in ipairs(values) do
+                if index % 2 == 0 then
+                    score = score + math.pow(0.5,
+                        ((from - val) / halflife))
                 end
-                do break end
-                if cursor == 0 then break end
             end
             if cache_timeout ~= '0' then
                 redis.call('SET', score_cache_key, score, 'EX', cache_timeout)
