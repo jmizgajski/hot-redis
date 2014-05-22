@@ -60,5 +60,9 @@ require('tests/test_blist_atoms')
 require('multi')
 require('tests/test_multi')
 
+require('core_atoms')
+require('tests/test_core_atoms')
+
+
 lunatest.run()
 print ''
