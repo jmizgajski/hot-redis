@@ -55,7 +55,10 @@ ARGV = {}
 KEYS = {}
 
 require('blist_atoms')
-require('tests/test_blist_atoms'
-)
+require('tests/test_blist_atoms')
+
+require('multi')
+require('tests/test_multi')
+
 lunatest.run()
 print ''
