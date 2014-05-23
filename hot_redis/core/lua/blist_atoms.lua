@@ -60,3 +60,4 @@ function sorted_set_symmetric_difference()
 
     redis.call('ZUNIONSTORE', target_key, 1, temp1)
 end
+
