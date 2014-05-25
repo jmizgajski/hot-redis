@@ -73,9 +73,9 @@ function rank_by_top_key_if_equal()
     local min, max, required_key_value = unpack(ARGV)
     local ranker_key = "__tmp__.hot_redis.rank_by_top_key_if_equal"
     for _, key in ipairs(KEYS) do
-        local top_element = redis.call('ZREVRANGE', key, 0, 1, 'WITHSCORES')
-        if top_element then
-            local val, score = unpack(top_element)
+        local top_elements = redis.call('ZREVRANGE', key, 0, 0, 'WITHSCORES')
+        if top_elements[1] then
+            local val, score = unpack(top_elements[1])
             if val == required_key_value then
                 redis.call('ZADD', ranker_key, score, key)
             end
