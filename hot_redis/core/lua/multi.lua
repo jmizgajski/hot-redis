@@ -70,7 +70,7 @@ function rank_by_sum_of_decaying_score()
 end
 
 function rank_by_top_key_if_equal()
-    local required_key_value = unpack(ARGV)
+    local min, max, required_key_value = unpack(ARGV)
     local ranker_key = "__tmp__.hot_redis.rank_by_top_key_if_equal"
     for _, key in ipairs(KEYS) do
         local top_element = redis.call('ZREVRANGE', key, 0, 1, 'WITHSCORES')
@@ -81,8 +81,7 @@ function rank_by_top_key_if_equal()
             end
         end
     end
-    local result = redis.call('ZREVRANGE', ranker_key, ARGV[1], ARGV[2],
-        'WITHSCORES')
+    local result = redis.call('ZREVRANGE', ranker_key, min, max, 'WITHSCORES')
     redis.call('DEL', ranker_key)
     return result
 end
