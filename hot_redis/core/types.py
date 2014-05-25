@@ -184,6 +184,19 @@ class HotClient(object):
         return Ranking(self._rank_by_sum_of_decaying_score, keys, from_,
                        halflife, cache_timeout)
 
+    def rank_by_top_key_if_equal(self, filtering_key, *keys):
+        """
+        Creates a temporary ZSET with ZSET keys as entries and score of
+        their top element as scores if this top element is equal to
+        filtering key.
+        :param filtering_key: set whose top element has different key will
+        be filtered out
+        :param keys: keys of the zsets you want to rank
+        :return: :rtype: Ranking
+        :raise ValueError: when not enough keys are provided
+        """
+        return Ranking(self._rank_by_top_key_if_equal, keys, filtering_key)
+
     def __getattr__(self, name):
         if name in self.__dict__:
             return super(HotClient, self).__getattribute__(name)
