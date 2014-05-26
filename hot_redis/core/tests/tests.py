@@ -16,8 +16,6 @@ keys = []
 # FIXME: [To discuss] export lua multi methods to a subclass
 # HotAnalyticsClient (which could be kept inside moodly)
 # FIXME: split tests into individual files
-# FIXME: redis-lua return formats have to conform to the way they are
-# returned by redis.call in redis
 # FIXME: SerializedSortedObjectSet
 # FIXME: better organize imports in tests
 

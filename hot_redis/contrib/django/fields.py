@@ -130,7 +130,7 @@ class Counter(Field):
 
 
 class String(Field):
-    _hot_redis_type = hot_redis.core.types.String
+    _hot_redis_type = hot_redis.String
 
 
 class SerializedObjectList(Field):
