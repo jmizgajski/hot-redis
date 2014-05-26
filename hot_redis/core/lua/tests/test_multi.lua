@@ -23,5 +23,10 @@ function test_rank_by_top_key_if_equal()
     KEYS = { '1', '2', '3', '4' }
     ARGV = { '0', '3', '1'}
     local result = rank_by_top_key_if_equal()
-    print(table.inspect(result))
+
+    assert_equal(4, #result)
+    assert_equal('1', result[1])
+    assert_equal('5', result[2])
+    assert_equal('3', result[3])
+    assert_equal('4', result[4])
 end
