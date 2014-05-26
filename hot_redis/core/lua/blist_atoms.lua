@@ -34,6 +34,8 @@ function sorted_set_difference()
     redis.call('SDIFFSTORE', temp1, temp1, temp2)
 
     redis.call('ZUNIONSTORE', target_key, 1, temp1)
+    redis.call('DEL', temp1)
+    redis.call('DEL', temp2)
 end
 
 function sorted_set_symmetric_difference()
@@ -59,5 +61,8 @@ function sorted_set_symmetric_difference()
     redis.call('SDIFFSTORE', temp1, temp3, temp1)
 
     redis.call('ZUNIONSTORE', target_key, 1, temp1)
+    redis.call('DEL', temp1)
+    redis.call('DEL', temp2)
+    redis.call('DEL', temp3)
 end
 
