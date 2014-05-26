@@ -1,4 +1,5 @@
 require('luarocks.loader')
+_ = require 'underscore'
 local lunatest = require 'lunatest'
 assert_true, assert_false = lunatest.assert_true, lunatest.assert_false
 assert_diffvars = lunatest.assert_diffvars
@@ -34,7 +35,14 @@ local port = 6379
 client = redis.connect(host, port)
 
 redis.call = function(cmd, ...)
-   return assert(loadstring('return client:' .. string.lower(cmd) .. '(...)'))(...)
+    local result = assert(loadstring('return client:' .. string.lower(cmd) .. '(...)'))(...)
+
+    local last_arg = select(select("#",...),...)
+    --probably need to think more about this condition
+    if type(result) == "table" and last_arg == "WITHSCORES" then
+        result = _.flatten(result)
+    end
+    return result
 end
 
 function table.contains(table, element)
