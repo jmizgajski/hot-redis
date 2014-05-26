@@ -44,9 +44,10 @@ class HotClient(object):
     A Redis client wrapper that loads Lua functions and creates
     client methods for calling them.
     """
-    _ATOMS_FILE_NAME = "atoms.lua"
+    _ATOMS_FILE_NAME = "core_atoms.lua"
     _BIT_FILE_NAME = "bit.lua"
     _MULTI_FILE_NAME = "multi.lua"
+    _BLIST_FILE_NAME = "blist_atoms.lua"
 
     def __init__(self, client=None, *args, **kwargs):
         self._client = client
@@ -55,6 +56,7 @@ class HotClient(object):
 
         self._bind_atoms()
         self._bind_multi()
+        self._bind_blist()
 
     def _bind_atoms(self):
         with open(self._get_lua_path(self._BIT_FILE_NAME)) as f:
@@ -75,8 +77,14 @@ class HotClient(object):
             self._bind_lua_method(name, snippet)
 
     def _bind_multi(self):
-        for name, snippet in self._split_lua_file_into_funcs("multi.lua"):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._MULTI_FILE_NAME):
             self._bind_private_lua_script(name, snippet)
+
+    def _bind_blist(self):
+        for name, snippet in self._split_lua_file_into_funcs(
+            self._BLIST_FILE_NAME):
+            self._bind_lua_method(name, snippet)
 
     @staticmethod
     def _get_lua_path(name):
@@ -175,6 +183,19 @@ class HotClient(object):
         """
         return Ranking(self._rank_by_sum_of_decaying_score, keys, from_,
                        halflife, cache_timeout)
+
+    def rank_by_top_key_if_equal(self, filtering_key, *keys):
+        """
+        Creates a temporary ZSET with ZSET keys as entries and score of
+        their top element as scores if this top element is equal to
+        filtering key.
+        :param filtering_key: set whose top element has different key will
+        be filtered out
+        :param keys: keys of the zsets you want to rank
+        :return: :rtype: Ranking
+        :raise ValueError: when not enough keys are provided
+        """
+        return Ranking(self._rank_by_top_key_if_equal, keys, filtering_key)
 
     def __getattr__(self, name):
         if name in self.__dict__:
@@ -1106,7 +1127,8 @@ class MultiSet(collections.MutableMapping, Base):
             kvs = list(chain.from_iterable(iterables))
             with self.pipeline() as pipe:
                 for key, value in kvs:
-                    pipe.zincrby(key, value)
+                    pipe.zincrby(self.key, key, value)
+                pipe.execute()
 
     def subtract(self, iterable=None, **kwds):
         iterables = []
@@ -1118,7 +1140,8 @@ class MultiSet(collections.MutableMapping, Base):
             kvs = list(chain.from_iterable(iterables))
             with self.pipeline(transaction=False) as pipe:
                 for key, value in kvs:
-                    pipe.zincrby(key, -value)
+                    pipe.zincrby(self.key, key, -value)
+                pipe.execute()
 
     def copy(self):
         return self.__class__(self.values)
