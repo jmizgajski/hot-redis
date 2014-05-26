@@ -11,6 +11,8 @@ HOT_REDIS = {
     'db': 14
 }
 
+REDIS_TEST = True
+
 SECRET_KEY = 'super_secret'
 
 DATABASES = {

@@ -10,7 +10,6 @@ class TestObjectList(ClearRedisTestCase):
         self.client = get_redis_connection()
 
         self.list = [{1: 2}, {1: 3}, {1: 1}, {1: -1}]
-
         self.object_list = ObjectList(
             redis_key=make_key('ObjectList'),
             client=self.client
