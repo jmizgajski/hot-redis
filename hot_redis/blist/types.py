@@ -123,3 +123,20 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
     @value.setter
     def value(self, value):
         self.update(value)
+
+
+class SortedSerializedObjectSet(SortedSet):
+    def serialize(self, item):
+        return self.serializer.serialize(item)
+
+    def prepare(self, item):
+        return self.serializer.prepare(item)
+
+    def deserialize(self, string):
+        return self.serializer.deserialize(string)
+
+    def __init__(self, serializer, key, **kwargs):
+        super(SortedSerializedObjectSet, self).__init__(key=key,
+                                                        **kwargs)
+        self.serializer = serializer
+

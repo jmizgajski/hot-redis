@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 import collections
+from functools import partial
 import operator
 import os
 import time
 import uuid
+import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
 
+
 from redis import ResponseError
 from redis.client import Redis, zset_score_pairs
+from core.transactions import transaction
 
 
 class Ranking(object):
@@ -814,7 +818,7 @@ class Queue(List):
         return self.qsize() == 0
 
     def full(self):
-        return self.maxsize > 0 and self.qsize() >= self.maxsize
+        return 0 < self.maxsize <= self.qsize()
 
     def put(self, item, block=True, timeout=None):
         if self.maxsize == 0:
@@ -1148,3 +1152,65 @@ class MultiSet(collections.MutableMapping, Base):
 
 
 collections.MutableMapping.register(MultiSet)
+
+
+class ObjectList(List):
+    serialize = partial(pc.dumps, protocol=2)
+    deserialize = pc.loads
+
+    def __setitem__(self, i, item):
+        super(ObjectList, self).__setitem__(i, self.serialize(item))
+
+    def __getitem__(self, i):
+        got = super(ObjectList, self).__getitem__(i)
+        if isinstance(i, slice):
+            return [self.deserialize(x) for x in got]
+        return self.deserialize(got)
+
+    def extend(self, other):
+        super(ObjectList, self).extend([self.serialize(v) for v in other])
+
+    def append(self, item):
+        self.extend([item])
+
+    def insert(self, i, item):
+        super(ObjectList, self).insert(i, self.serialize(item))
+
+    def pop(self, i=-1):
+        res = super(ObjectList, self).pop(i)
+        return self.deserialize(res) if res else None
+
+    def sort_by_key(self, key):
+        @transaction(self)
+        def sort_in_place(pipe):
+            """:type pipe: redis.client.Redis"""
+            new_val = sorted(self.value, key=key)
+            pipe.multi()
+            pipe.delete(self.key)
+            self.extend(new_val)
+
+        sort_in_place()
+
+
+class SerializedObjectList(ObjectList):
+    def serialize(self, item):
+        return self.serializer.serialize(item)
+
+    def prepare(self, item):
+        return self.serializer.prepare(item)
+
+    def deserialize(self, string):
+        return self.serializer.deserialize(string)
+
+    def wrap(self, dictionary):
+        return self.serializer.wrap(dictionary)
+
+    def __init__(self, serializer, **kwargs):
+        super(SerializedObjectList, self).__init__(**kwargs)
+        self.serializer = serializer
+
+    def index(self, item):
+        return self.value.index(self.wrap(self.prepare(item)))
+
+    def count(self, item):
+        return self.value.count(self.wrap(self.prepare(item)))
