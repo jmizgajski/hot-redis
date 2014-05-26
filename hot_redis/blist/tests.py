@@ -2,7 +2,7 @@
 from blist import sortedset
 
 from hot_redis.blist.types import SortedSet
-from hot_redis.core.tests import BaseTestCase
+from hot_redis.core.tests.tests import BaseTestCase
 
 
 class SortedSetTest(BaseTestCase):

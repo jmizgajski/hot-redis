@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
-from common.lib.redis.contrib.django.connection import get_redis_connection
-from common.lib.redis.contrib.django.case import ClearRedisTestCase
-from common.lib.redis.contrib.django.utils import make_key
-from common.lib.redis.types import ObjectList
+from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.contrib.django.case import ClearRedisTestCase
+from hot_redis.contrib.django.utils import make_key
+from hot_redis.core.types import ObjectList
 
 
 class TestObjectList(ClearRedisTestCase):

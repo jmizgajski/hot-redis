@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 from django.conf import settings
-from hot_redis import HotClient as BaseHotClient
+from hot_redis.core.hot_client import HotClient as BaseHotClient
 
 
 class HotRedisNotConfiguredException(Exception):

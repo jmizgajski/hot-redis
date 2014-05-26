@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 from unittest import TestCase
-from common.lib.redis.contrib.django.connection import get_redis_connection
-from common.lib.redis.utils import delete_by_pattern
+from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.utils import delete_by_pattern
 
 
 class TestDeleteByPattern(TestCase):

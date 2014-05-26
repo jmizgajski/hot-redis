@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 from unittest import TestCase
-from contrib.django import mappings
-from contrib.django.mappings import ModelMappingType
+from hot_redis.contrib.django import mappings
+from hot_redis.contrib.django.mappings import ModelMappingType
 
 
 class TestMappings(TestCase):

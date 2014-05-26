@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.test import TransactionTestCase
+from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.utils import delete_by_pattern
+from utils import DEFAULT_TEST_PREFIX
+
 
 
 class ClearRedisTestCase(TransactionTestCase):

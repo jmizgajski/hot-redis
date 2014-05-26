@@ -3,11 +3,10 @@ import collections
 import time
 import Queue
 import unittest
-from contrib.django.case import ClearRedisTestCase
-from contrib.django.utils import make_key
-
+from hot_redis.contrib.django.case import ClearRedisTestCase
+from hot_redis.contrib.django.utils import make_key
+from hot_redis.contrib.django.connection import get_redis_connection
 from hot_redis import core, ObjectList
-
 
 keys = []
 
