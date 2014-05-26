@@ -129,6 +129,10 @@ class Counter(Field):
     _hot_redis_type = hot_redis.MultiSet
 
 
+class String(Field):
+    _hot_redis_type = hot_redis.core.types.String
+
+
 class SerializedObjectList(Field):
     _hot_redis_type = types.SerializedObjectList
 
