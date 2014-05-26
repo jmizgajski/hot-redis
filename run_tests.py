@@ -20,6 +20,4 @@ setup_test_environment()
 
 # Run nose.
 #
-# nose.run() returns True if tests passed and False otherwise which is
-# the inverse of what we want the process to return, so we invert it.
-sys.exit(not nose.run())
+sys.exit(nose.main())
