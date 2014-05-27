@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 from functools import partial, wraps
 from itertools import izip
-from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.core.tests.test_utils import get_redis_connection
 
 
 def decorated_transaction_wrapper(watched, instant_multi, func):

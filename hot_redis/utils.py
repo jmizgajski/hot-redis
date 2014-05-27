@@ -33,3 +33,18 @@ def delete_by_pattern(pattern, client):
     end
     '''
     client.eval(delete_script, 0, pattern)
+
+
+DEFAULT_TEST_PREFIX = '__test__'
+KEY_SEPARATOR = '.'
+
+def make_key(*parts):
+    key = KEY_SEPARATOR.join(str(part) for part in parts)
+
+    from test_settings import REDIS_TEST
+
+    if REDIS_TEST:
+        prefix = DEFAULT_TEST_PREFIX
+        return "%s%s" % (prefix, key)
+
+    return key

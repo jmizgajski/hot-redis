@@ -3,9 +3,10 @@ import collections
 import time
 import Queue
 import unittest
-from hot_redis.contrib.django.case import ClearRedisTestCase
 from hot_redis.contrib.django.utils import make_key
-from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.core.tests.test_utils import get_redis_connection
+from hot_redis.contrib.django.utils import DEFAULT_TEST_PREFIX
+from hot_redis.utils import delete_by_pattern
 from hot_redis import core, ObjectList
 
 keys = []
@@ -32,6 +33,15 @@ core.Base.__init__ = base_wrapper(core.Base.__init__)
 
 
 class BaseTestCase(unittest.TestCase):
+    @staticmethod
+    def clear_prefixed_keys():
+        client = get_redis_connection()
+        pattern = "%s*" % (DEFAULT_TEST_PREFIX)
+        delete_by_pattern(pattern, client)
+
+    def setUp(self):
+        self.clear_prefixed_keys()
+
     def tearDown(self):
         client = core.default_client()
         while keys:
@@ -40,6 +50,7 @@ class BaseTestCase(unittest.TestCase):
 
 class LuaMultiMethodsTests(BaseTestCase):
     def setUp(self):
+        super(LuaMultiMethodsTests, self).setUp()
         self.longMessage = True
 
     def test_rank_lists_by_length(self):
@@ -1136,14 +1147,16 @@ class CounterTest(object):
         self.assertEqual(c.most_common(), b.most_common())
 
 
-class TestObjectList(ClearRedisTestCase):
+class TestObjectList(BaseTestCase):
     def setUp(self):
+        super(TestObjectList, self).setUp()
+
         self.client = get_redis_connection()
 
         self.list = [{1: 2}, {1: 3}, {1: 1}, {1: -1}]
 
         self.object_list = ObjectList(
-            redis_key=make_key('ObjectList'),
+            redis_key='ObjectList',
             client=self.client
         )
         self.object_list.extend(self.list)

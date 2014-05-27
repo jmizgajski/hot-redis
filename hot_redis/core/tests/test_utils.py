@@ -1,7 +1,11 @@
 # -*- coding: utf8 -*-
 from unittest import TestCase
-from hot_redis.contrib.django.connection import get_redis_connection
 from hot_redis.utils import delete_by_pattern
+from hot_redis.core.hot_client import HotClient
+from test_settings import HOT_REDIS
+
+def get_redis_connection():
+   return HotClient(**HOT_REDIS)
 
 
 class TestDeleteByPattern(TestCase):
@@ -28,3 +32,17 @@ class TestDeleteByPattern(TestCase):
 
         #cleanup
         redis.delete(*(keys_that_match + keys_that_dont_match))
+
+
+DEFAULT_TEST_PREFIX = '__test__'
+KEY_SEPARATOR = '.'
+
+def make_key(*parts):
+    key = KEY_SEPARATOR.join(str(part) for part in parts)
+
+    if getattr(settings, 'REDIS_TEST', False):
+        prefix = getattr(
+            settings, 'REDIS_TEST_KEY_PREFIX', DEFAULT_TEST_PREFIX)
+        return "%s%s" % (prefix, key)
+
+    return key
