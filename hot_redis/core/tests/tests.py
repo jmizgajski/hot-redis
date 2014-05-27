@@ -15,7 +15,6 @@ keys = []
 # HotAnalyticsClient (which could be kept inside moodly)
 # FIXME: split tests into individual files
 # FIXME: SerializedSortedObjectSet
-# FIXME: better organize imports in tests
 
 
 def base_wrapper(init):
