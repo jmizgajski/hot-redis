@@ -11,9 +11,6 @@ from hot_redis import core, ObjectList
 
 keys = []
 
-# FIXME: rewrite all keys to use make_key
-# FIXME: rewrite all cases to use safer ClearRedisTestCase
-# FIXME: wrap UUID with make_key() when redis_key not provided
 # FIXME: [To discuss] export lua multi methods to a subclass
 # HotAnalyticsClient (which could be kept inside moodly)
 # FIXME: split tests into individual files
