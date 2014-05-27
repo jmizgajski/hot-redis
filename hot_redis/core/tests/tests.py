@@ -3,7 +3,7 @@ import collections
 import time
 import Queue
 import unittest
-from hot_redis.contrib.django.utils import make_key
+from hot_redis.utils import make_key
 from hot_redis.core.tests.test_utils import get_redis_connection
 from hot_redis.contrib.django.utils import DEFAULT_TEST_PREFIX
 from hot_redis.utils import delete_by_pattern
@@ -57,11 +57,15 @@ class LuaMultiMethodsTests(BaseTestCase):
         lengths = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("l%d" % length) for length in lengths]
         keys_with_lengths = zip(_keys, lengths)
+        test_keys = [make_key(x) for x in _keys]
+        test_keys_with_lengths = zip(test_keys, lengths)
+
         lists = [
             core.List(range(int(length)), redis_key=key)
             for key, length
             in keys_with_lengths
         ]
+
         client = core.default_client()
 
         calls = [
@@ -77,8 +81,9 @@ class LuaMultiMethodsTests(BaseTestCase):
         ]
 
         for call, code in calls:
-            expected = call(keys_with_lengths)
-            result = call(client.rank_lists_by_length(*_keys))
+            expected = call(test_keys_with_lengths)
+            ranking = client.rank_lists_by_length(*test_keys)
+            result = call(ranking)
             self.assertEquals(
                 result,
                 expected,
@@ -96,6 +101,8 @@ class LuaMultiMethodsTests(BaseTestCase):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("s%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
+        test_keys = [make_key(x) for x in _keys]
+        test_keys_with_cardinalities = zip(test_keys, cardinalities)
         sets = [
             core.Set(range(int(card)), redis_key=key)
             for key, card
@@ -116,8 +123,8 @@ class LuaMultiMethodsTests(BaseTestCase):
         ]
 
         for call, code in calls:
-            expected = call(keys_with_cardinalities)
-            result = call(client.rank_sets_by_cardinality(*_keys))
+            expected = call(test_keys_with_cardinalities)
+            result = call(client.rank_sets_by_cardinality(*test_keys))
             self.assertEquals(
                 result,
                 expected,
@@ -135,6 +142,8 @@ class LuaMultiMethodsTests(BaseTestCase):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("z%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
+        test_keys = [make_key(x) for x in _keys]
+        test_keys_with_cardinalities = zip(test_keys, cardinalities)
         client = core.default_client()
 
         [
@@ -160,8 +169,8 @@ class LuaMultiMethodsTests(BaseTestCase):
         ]
 
         for call, code in calls:
-            expected = call(keys_with_cardinalities)
-            result = call(client.rank_zsets_by_cardinality(*_keys))
+            expected = call(test_keys_with_cardinalities)
+            result = call(client.rank_zsets_by_cardinality(*test_keys))
             self.assertEquals(
                 result,
                 expected,
