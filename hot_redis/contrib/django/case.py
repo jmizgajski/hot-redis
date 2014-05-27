@@ -6,12 +6,11 @@ from hot_redis.utils import delete_by_pattern
 from utils import DEFAULT_TEST_PREFIX
 
 
-
 class ClearRedisTestCase(TransactionTestCase):
     @staticmethod
     def clear_prefixed_keys():
         client = get_redis_connection()
-        #clear all testable keys
+        # clear all testable keys
         pattern = "%s*" % getattr(
             settings,
             'REDIS_TEST_KEY_PREFIX',

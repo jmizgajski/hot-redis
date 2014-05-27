@@ -1046,7 +1046,7 @@ class CounterTest(object):
     def test_update(self):
         a = "wagwaan"
         b = {"hotskull": 420}
-        b1 = [('1', 1), ('2',2), ('3',3)]
+        b1 = [('1', 1), ('2', 2), ('3', 3)]
         c = collections.Counter(a)
         d = core.MultiSet(a)
         c.update(core.MultiSet(a))
@@ -1075,7 +1075,7 @@ class CounterTest(object):
 
         c.update(b1)
         d.update(b1)
-        self.assertEqual(d,c)
+        self.assertEqual(d, c)
 
     def test_subtract(self):
         a = "wagwaan"
@@ -1215,4 +1215,3 @@ class TestObjectList(BaseTestCase):
 
         self.assertEquals(list(self.object_list), self.list)
         self.assertEquals(x, x2)
-

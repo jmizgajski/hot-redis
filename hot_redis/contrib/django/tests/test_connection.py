@@ -2,6 +2,7 @@
 from django.utils.unittest.case import TestCase
 from django.conf import settings
 
+
 class TestConnection(TestCase):
 
     def test_get_connection_from_settings(self):

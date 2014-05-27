@@ -96,7 +96,7 @@ class FieldAccessor(object):
     This class is used to access and manipulate hot_redis types wrapped by
     RedisField without calling the database to get the model instance
     """
-    #TODO: we could add a method that would take just Model.field and model_id
+    # TODO: we could add a method that would take just Model.field and model_id
 
     @staticmethod
     def get_value_by_id(

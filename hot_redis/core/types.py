@@ -16,9 +16,6 @@ from redis import ResponseError
 from redis.client import Redis, zset_score_pairs
 from hot_redis.core.transactions import transaction
 
-
-
-
 _client = None
 _config = {}
 

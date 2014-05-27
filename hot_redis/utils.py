@@ -38,6 +38,7 @@ def delete_by_pattern(pattern, client):
 DEFAULT_TEST_PREFIX = '__test__'
 KEY_SEPARATOR = '.'
 
+
 def make_key(*parts):
     key = KEY_SEPARATOR.join(str(part) for part in parts)
 

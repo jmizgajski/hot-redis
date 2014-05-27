@@ -1,6 +1,7 @@
 import os
 from redis.client import Redis, zset_score_pairs
 
+
 class Ranking(object):
     def __init__(self, ranking_script, keys_, *script_args):
         if len(keys_) < 2:
@@ -68,12 +69,12 @@ class HotClient(object):
 
     def _bind_multi(self):
         for name, snippet in self._split_lua_file_into_funcs(
-            self._MULTI_FILE_NAME):
+                self._MULTI_FILE_NAME):
             self._bind_private_lua_script(name, snippet)
 
     def _bind_blist(self):
         for name, snippet in self._split_lua_file_into_funcs(
-            self._BLIST_FILE_NAME):
+                self._BLIST_FILE_NAME):
             self._bind_lua_method(name, snippet)
 
     @staticmethod
@@ -191,5 +192,3 @@ class HotClient(object):
         if name in self.__dict__:
             return super(HotClient, self).__getattribute__(name)
         return self._client.__getattribute__(name)
-
-

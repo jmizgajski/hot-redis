@@ -4,8 +4,9 @@ from hot_redis.utils import delete_by_pattern
 from hot_redis.core.hot_client import HotClient
 from test_settings import HOT_REDIS
 
+
 def get_redis_connection():
-   return HotClient(**HOT_REDIS)
+    return HotClient(**HOT_REDIS)
 
 
 class TestDeleteByPattern(TestCase):
@@ -30,8 +31,5 @@ class TestDeleteByPattern(TestCase):
         for key in keys_that_dont_match:
             self.assertEquals(redis.get(key), val)
 
-        #cleanup
+        # cleanup
         redis.delete(*(keys_that_match + keys_that_dont_match))
-
-
-

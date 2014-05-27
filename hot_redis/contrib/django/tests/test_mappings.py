@@ -41,7 +41,7 @@ class TestMappings(TestCase):
 
         class SampleMapping(ModelMappingType):
             user = mappings.Extractor(lambda obj: obj.user + "_1")
-            #will not be serialized - is not an extractor or a string
+            # will not be serialized - is not an extractor or a string
             id = 1
 
             class Meta(object):
