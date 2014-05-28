@@ -33,14 +33,7 @@ HOT Redis was drawn from the infrastructure behind the
 Installation
 ============
 
-The easiest way to install ``hot-redis`` is directly
-from PyPi using `pip`_ by running the following command::
-
-    $ pip install -U hot-redis
-
-Otherwise you can download and install it directly from source::
-
-    $ python setup.py install
+Use ```pip install``` and specify a commit from this repository (preferably from the master branch)
 
 
 Usage
