@@ -85,3 +85,4 @@ function rank_by_top_key_if_equal()
     redis.call('DEL', ranker_key)
     return result
 end
+
