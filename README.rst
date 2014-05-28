@@ -3,7 +3,7 @@
 
 Created by `Stephen McDonald <http://twitter.com/stephen_mcd>`_
 
-Upgraded and maintained by: Robert Głowski and Jan Mizgajski
+Upgraded and maintained by: Robert Głowski, Jan Mizgajski and Maciej Kwiek
 
 Introduction
 ============
