@@ -94,7 +94,6 @@ function multi_zset_fixed_width_histogram()
             'WITHSCORES')
         for index, val in ipairs(scores) do
             if index % 2 == 0 then
-                print(val)
                 local bucket_index = val - val % bucket_width
                 if histogram[bucket_index] == nil then
                     histogram[bucket_index] = 1
