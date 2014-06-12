@@ -45,7 +45,8 @@ function test_multi_zset_fixed_width_histogram()
     KEYS = { '1', '2'}
     ARGV = { '7','244', '10' }
     local result = multi_zset_fixed_width_histogram()
-    assert_equal(2, result[0])
-    assert_equal(2, result[10])
+    print(table.inspect(result))
+    assert_equal(2, result[2])
+    assert_equal(2, result[4])
 
 end

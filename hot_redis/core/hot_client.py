@@ -199,7 +199,7 @@ class HotClient(object):
         :param keys: keys of zsets scores of which we would like to include
         :return: a histogram (bucket_lower_bound, count) :rtype: list[tuple]
         """
-        resp = self._test_multi_zset_fixed_width_histogram(
+        resp = self._multi_zset_fixed_width_histogram(
             args=[from_, to, bucket_width], keys=keys)
         return zset_score_pairs(response=resp, withscores=True)
 
