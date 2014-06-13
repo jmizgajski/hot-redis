@@ -897,7 +897,7 @@ class MultiSet(collections.MutableMapping, Base):
     __ror__ = op_right(operator.or_)
     __iadd__ = inplace("update")
     __isub__ = inplace("subtract")
-    __iand__ = inplace("intersection_update")
+    __iand__ = inplace("multiset_intersection_update")
     __ior__ = inplace("union_update")
 
     @property
