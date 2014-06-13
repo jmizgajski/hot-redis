@@ -100,8 +100,7 @@ function multi_zset_fixed_width_histogram()
                 if histogram[bucket] == nil then
                     histogram[bucket] = 1
                 else
-                    histogram[bucket] =
-                    histogram[bucket] + 1
+                    histogram[bucket] = histogram[bucket] + 1
                 end
             end
         end
