@@ -88,28 +88,28 @@ end
 
 function multi_zset_fixed_width_histogram()
     local from, to, bucket_width = unpack(ARGV)
-    bucket_width =  tonumber(bucket_width)
+    bucket_width = tonumber(bucket_width)
     local histogram = {}
     for _, key in ipairs(KEYS) do
         local scores = redis.call('ZRANGEBYSCORE', key, from, to,
             'WITHSCORES')
-        for index, val in ipairs(scores) do
+        for index, _val in ipairs(scores) do
             if index % 2 == 0 then
+                local val = tonumber(_val)
                 local bucket = (val - val % bucket_width)
-                -- to conform with Redis return style we have to have two
-                -- slots for each count, the first is bucket lower bound, the
-                -- second is the actual score
-                local bucket_index = ((val - val % bucket_width) /
-                        bucket_width)*2 + 1
-                if histogram[bucket_index] == nil then
-                    histogram[bucket_index] = bucket
-                    histogram[bucket_index+1] = 1
+                if histogram[bucket] == nil then
+                    histogram[bucket] = 1
                 else
-                    histogram[bucket_index+1] =
-                        histogram[bucket_index+1] + 1
+                    histogram[bucket] =
+                    histogram[bucket] + 1
                 end
             end
         end
     end
-    return histogram
+    local return_histogram = {}
+    for bucket, count in pairs(histogram) do
+        table.insert(return_histogram, bucket)
+        table.insert(return_histogram, count)
+    end
+    return return_histogram
 end
