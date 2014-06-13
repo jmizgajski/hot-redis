@@ -847,14 +847,14 @@ class MultiSet(collections.MutableMapping, Base):
             for key, count in collections.Counter(iterable).iteritems():
                 yield (key, count)
         else:
-            for nested_iterable in iterable:
-                nested_list = list(nested_iterable)  # easy way
-                if len(nested_list) != 2:
-                    raise ValueError(
-                        "Nested iterable: %s has length diffrent from 2")
-                if not isinstance(nested_list[0], basestring):
-                    raise ValueError("Key must be instance od basestring")
-                yield (nested_list[0], int(nested_list[1]))
+            raise TypeError('Nested iterable')
+                #nested_list = list(nested_iterable)  # easy way
+                #if len(nested_list) != 2:
+                #    raise ValueError(
+                #        "Nested iterable: %s has length diffrent from 2")
+                #if not isinstance(nested_list[0], basestring):
+                #    raise ValueError("Key must be instance od basestring")
+                #yield (nested_list[0], int(nested_list[1]))
 
     def __init__(
             self, initial=None, client=None,
@@ -871,7 +871,7 @@ class MultiSet(collections.MutableMapping, Base):
             raise ValueError("Key must be instance od basestring")
         val = self.zscore(key)
         if val is None:
-            return self.__missing__(key)
+            raise KeyError()
         return val
 
     def __iter__(self):
@@ -902,7 +902,7 @@ class MultiSet(collections.MutableMapping, Base):
 
     @property
     def value(self):
-        return collections.Counter(self.most_common())
+        return collections.Counter(dict(self.most_common()))
 
     @value.setter
     def value(self, value):
@@ -911,6 +911,14 @@ class MultiSet(collections.MutableMapping, Base):
                 value = dict(value)
             except TypeError:
                 value = None
+            except ValueError:
+                value_dict = {}
+                for x in value:
+                    if not x in value_dict.keys():
+                        value_dict[x] = 1
+                    else:
+                        value_dict[x] = value_dict[x] + 1
+                value = value_dict
         if value:
             self.update(value)
 
@@ -919,7 +927,7 @@ class MultiSet(collections.MutableMapping, Base):
         return "%s(%s, '%s')" % bits
 
     def __missing__(self, key):
-        return 0
+        return None
 
     def most_common(self, n=None):
         if n == 0:

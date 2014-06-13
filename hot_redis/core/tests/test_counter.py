@@ -3,7 +3,7 @@ from tests import BaseTestCase
 
 from hot_redis import core, ObjectList
 
-class TestCounter(object):
+class TestCounter(BaseTestCase):
     def test_value(self):
         a = "wagwaan"
         b = {"hot": 420, "skull": -9000}
@@ -47,7 +47,6 @@ class TestCounter(object):
     def test_update(self):
         a = "wagwaan"
         b = {"hotskull": 420}
-        b1 = [('1', 1), ('2', 2), ('3', 3)]
         c = collections.Counter(a)
         d = core.MultiSet(a)
         c.update(core.MultiSet(a))
@@ -72,10 +71,6 @@ class TestCounter(object):
         d = core.MultiSet(a)
         c.update(**b)
         d.update(**b)
-        self.assertEqual(d, c)
-
-        c.update(b1)
-        d.update(b1)
         self.assertEqual(d, c)
 
     def test_subtract(self):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from hot_redis.utils import make_key
 from hot_redis.core.tests.test_utils import get_redis_connection
 from hot_redis.utils import DEFAULT_TEST_PREFIX
 from hot_redis.utils import delete_by_pattern
