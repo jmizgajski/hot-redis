@@ -202,6 +202,23 @@ class HotClient(object):
             return super(HotClient, self).__getattribute__(name)
         return self._client.__getattribute__(name)
 
+    def multi_zset_fixed_width_histogram(
+            self, from_, to, bucket_width, *keys):
+        """
+        Produces an equi-width histogram of score values from multiple
+        zsets
+        provided in keys.
+        :param from_: scores below that are not taken into account
+        :param to: scores above that are not taken into account
+        :param bucket_width: the size of the histogram bucket
+        :param keys: keys of zsets scores of which we would like to include
+        :return: a histogram (bucket_lower_bound, count) :rtype: list[
+        tuple]
+        """
+        resp = self._multi_zset_fixed_width_histogram(
+            args=[from_, to, bucket_width], keys=keys)
+        return zset_score_pairs(response=resp, withscores=True)
+
 
 _client = None
 _config = {}

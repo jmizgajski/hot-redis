@@ -86,3 +86,30 @@ function rank_by_top_key_if_equal()
     return result
 end
 
+function multi_zset_fixed_width_histogram()
+    local from, to, bucket_width = unpack(ARGV)
+    bucket_width =  tonumber(bucket_width)
+    local histogram = {}
+    for _, key in ipairs(KEYS) do
+        local scores = redis.call('ZRANGEBYSCORE', key, from, to,
+            'WITHSCORES')
+        for index, val in ipairs(scores) do
+            if index % 2 == 0 then
+                local bucket = (val - val % bucket_width)
+                -- to conform with Redis return style we have to have two
+                -- slots for each count, the first is bucket lower bound, the
+                -- second is the actual score
+                local bucket_index = ((val - val % bucket_width) /
+                        bucket_width)*2 + 1
+                if histogram[bucket_index] == nil then
+                    histogram[bucket_index] = bucket
+                    histogram[bucket_index+1] = 1
+                else
+                    histogram[bucket_index+1] =
+                        histogram[bucket_index+1] + 1
+                end
+            end
+        end
+    end
+    return histogram
+end

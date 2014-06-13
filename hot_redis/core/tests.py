@@ -152,7 +152,27 @@ class LuaMultiMethodsTests(BaseTestCase):
             )
 
         with self.assertRaises(ValueError):
-            client.rank_zsets_by_cardinality('only_one_key'),
+            client.rank_zsets_by_cardinality('only_one_key')
+
+    def test_multi_zset_fixed_width_histogram(self):
+        client = core.default_client()
+
+        z1 = core.MultiSet(
+            initial=[('a', 9), ('aa', 9), ('aaa', 11)],
+            redis_key='z1',
+            client=client
+        )
+        z2 = core.MultiSet(
+            initial=[('a', 5), ('aa', 12)],
+            redis_key='z2',
+            client=client
+        )
+
+        result = client.multi_zset_fixed_width_histogram(
+            7, 30, 10, z2.key, z1.key)
+
+        print result
+        self.assertEquals(sorted(result), sorted([(0L, 2.0), (10L, 2.0)]))
 
 
 class ListTests(BaseTestCase):
