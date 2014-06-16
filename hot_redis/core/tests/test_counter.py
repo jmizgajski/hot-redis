@@ -103,7 +103,6 @@ class TestCounter(BaseTestCase):
         self.assertEqual(d, c)
 
     def test_intersection(self):
-        #TODO: this doesn't work
         a = "wagwaan"
         b = "flute don"
         c = collections.Counter(a)
