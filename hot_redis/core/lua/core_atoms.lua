@@ -164,6 +164,7 @@ function multiset_intersection_update()
         reversed[i] = ARGV[i + 1]
         reversed[i + 1] = ARGV[i]
     end
+
     redis.call('ZADD', KEYS[1] .. "__tmp", unpack(reversed))
     redis.call('ZINTERSTORE', KEYS[1], 2, KEYS[1], KEYS[1] .. "__tmp", "AGGREGATE", "MIN")
     redis.call('DEL', KEYS[1] .. "__tmp")

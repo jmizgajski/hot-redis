@@ -825,6 +825,20 @@ class DefaultDict(Dict):
         return self.setdefault(key, self.default_factory())
 
 
+def inplace_multiset(method_name):
+
+    def method(self, other):
+        other = value_left(self, other)
+
+        if(isinstance(other, collections.Counter)):
+            other = [item for sublist in other.most_common() for item in sublist]
+
+        getattr(self, method_name)(*other)
+
+        return self
+
+    return method
+
 class MultiSet(collections.MutableMapping, Base):
     """
     Redis sorted set <-> Python's collections.Counter.
@@ -897,8 +911,8 @@ class MultiSet(collections.MutableMapping, Base):
     __ror__ = op_right(operator.or_)
     __iadd__ = inplace("update")
     __isub__ = inplace("subtract")
-    __iand__ = inplace("multiset_intersection_update")
-    __ior__ = inplace("union_update")
+    __iand__ = inplace_multiset("multiset_intersection_update")
+    __ior__ = inplace_multiset("multiset_union_update")
 
     @property
     def value(self):
