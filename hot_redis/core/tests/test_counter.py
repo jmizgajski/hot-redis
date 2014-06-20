@@ -40,6 +40,19 @@ class TestCounter(BaseTestCase):
         self.assertEquals(e.get("skull"), f.get("skull"))
         self.assertEquals(e.get("flute", "don"), e.get("flute", "don"))
 
+    def test_getitem(self):
+        a = "wagwaan"
+        b = {"hot": 420, "skull": -9000}
+        c = collections.Counter(a)
+        d = core.MultiSet(a)
+        e = collections.Counter(**b)
+        f = core.MultiSet(**b)
+        self.assertEquals(c["a"], d["a"])
+        self.assertEquals(c["flute"], d["flute"])
+        self.assertEquals(e["hot"], f["hot"])
+        self.assertEquals(e["skull"], f["skull"])
+        self.assertEquals(e["flute"], e["flute"])
+
     def test_del(self):
         a = core.MultiSet("wagwaan")
         del a["hotskull"]
