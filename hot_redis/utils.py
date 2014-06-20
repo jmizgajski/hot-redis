@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 def get_instance_id(instance):
     """
     Maybe we could also use id() for objects without 'id' or 'pk'
@@ -37,10 +38,12 @@ def delete_by_pattern(pattern, client):
 DEFAULT_TEST_PREFIX = '__test__'
 KEY_SEPARATOR = '.'
 
+
 def make_key(*parts):
     key = KEY_SEPARATOR.join(str(part) for part in parts)
 
     return key
+
 
 def prefix_key(key):
     from test_settings import REDIS_TEST

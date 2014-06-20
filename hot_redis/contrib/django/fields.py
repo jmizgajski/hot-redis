@@ -1,6 +1,9 @@
 # -*- coding: utf8 -*-
 from abc import ABCMeta
-import hot_redis
+from hot_redis.utils import make_key, get_instance_id
+from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis import hot_redis, types
+
 
 
 class Field(object):

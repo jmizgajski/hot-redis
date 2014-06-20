@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 from django.utils.unittest.case import TestCase
-from django.conf import settings
 
 
 class TestConnection(TestCase):
