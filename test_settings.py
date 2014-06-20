@@ -22,6 +22,8 @@ DATABASES = {
     }
 }
 
+REDIS_TEST_PREFIX = '__test__'
+
 INSTALLED_APPS = [
     'hot_redis.contrib.django'
 ]

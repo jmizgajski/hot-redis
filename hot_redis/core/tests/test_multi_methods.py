@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from hot_redis.utils import make_key
+from hot_redis.utils import make_key, prefix_key
 
 from hot_redis import core, ObjectList
 
@@ -12,7 +12,7 @@ class LuaMultiMethodsTests(BaseTestCase):
         lengths = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("l%d" % length) for length in lengths]
         keys_with_lengths = zip(_keys, lengths)
-        test_keys = [make_key(x) for x in _keys]
+        test_keys = [prefix_key(make_key(x)) for x in _keys]
         test_keys_with_lengths = zip(test_keys, lengths)
 
         lists = [
@@ -39,6 +39,7 @@ class LuaMultiMethodsTests(BaseTestCase):
             expected = call(test_keys_with_lengths)
             ranking = client.rank_lists_by_length(*test_keys)
             result = call(ranking)
+
             self.assertEquals(
                 result,
                 expected,
@@ -56,7 +57,7 @@ class LuaMultiMethodsTests(BaseTestCase):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("s%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
-        test_keys = [make_key(x) for x in _keys]
+        test_keys = [prefix_key(make_key(x)) for x in _keys]
         test_keys_with_cardinalities = zip(test_keys, cardinalities)
         sets = [
             core.Set(range(int(card)), redis_key=key)
@@ -80,6 +81,7 @@ class LuaMultiMethodsTests(BaseTestCase):
         for call, code in calls:
             expected = call(test_keys_with_cardinalities)
             result = call(client.rank_sets_by_cardinality(*test_keys))
+
             self.assertEquals(
                 result,
                 expected,
@@ -97,7 +99,7 @@ class LuaMultiMethodsTests(BaseTestCase):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("z%d" % card) for card in cardinalities]
         keys_with_cardinalities = zip(_keys, cardinalities)
-        test_keys = [make_key(x) for x in _keys]
+        test_keys = [prefix_key(make_key(x)) for x in _keys]
         test_keys_with_cardinalities = zip(test_keys, cardinalities)
         client = core.default_client()
 

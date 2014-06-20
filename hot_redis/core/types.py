@@ -9,7 +9,7 @@ import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
 from hot_client import HotClient, Ranking
-from hot_redis.utils import make_key
+from hot_redis.utils import make_key, prefix_key
 
 
 from redis import ResponseError
@@ -116,8 +116,8 @@ class Base(object):
         self.client = client
 
 #        self.key = redis_key or str(uuid.uuid4())
-        self.key = make_key(redis_key) if redis_key else make_key(
-            str(uuid.uuid4()))
+        self.key = prefix_key(make_key(redis_key) if redis_key else make_key(
+            str(uuid.uuid4())))
         if initial:
             self.value = initial
 
