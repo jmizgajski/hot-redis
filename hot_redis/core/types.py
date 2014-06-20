@@ -880,12 +880,19 @@ class MultiSet(collections.MutableMapping, Base):
     def __len__(self):
         return self.zcard()
 
+    def get(self, key, default=None):
+        val = self[key]
+        if val == 0:
+            return default
+        else:
+            return val
+
     def __getitem__(self, key):
         if not isinstance(key, basestring):
             raise ValueError("Key must be instance od basestring")
         val = self.zscore(key)
         if val is None:
-            raise KeyError()
+            return 0
         return val
 
     def __iter__(self):
