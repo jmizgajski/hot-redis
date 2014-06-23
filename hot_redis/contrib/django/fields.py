@@ -144,7 +144,7 @@ class SerializedObjectList(Field):
 
 
 class SortedSerializedObjectSet(Field):
-    _hot_redis_type = hot_redis.blist.SortedSerializedObjectSet
+    _hot_redis_type = hot_redis.SortedSerializedObjectSet
 
     def __init__(self, serializer, key, shared_field=False, *args, **kwargs):
         super(SortedSerializedObjectSet, self).__init__(
