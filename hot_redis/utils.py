@@ -54,3 +54,6 @@ def prefix_key(key):
         return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
 
     return key
+
+def get_class_fqn(cls):
+    return '.'.join([cls.__module__, cls.__name__])

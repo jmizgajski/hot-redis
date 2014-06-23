@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
 from abc import ABCMeta
-from hot_redis.utils import make_key, get_instance_id
+from hot_redis.utils import make_key, get_instance_id, get_class_fqn
 from hot_redis.contrib.django.connection import get_redis_connection
-from hot_redis import hot_redis, types
+import hot_redis
 
 
 class Field(object):
@@ -136,7 +136,7 @@ class String(Field):
 
 
 class SerializedObjectList(Field):
-    _hot_redis_type = types.SerializedObjectList
+    _hot_redis_type = hot_redis.SerializedObjectList
 
     def __init__(self, serializer, shared_field=False, *args, **kwargs):
         super(SerializedObjectList, self).__init__(
@@ -144,7 +144,7 @@ class SerializedObjectList(Field):
 
 
 class SortedSerializedObjectSet(Field):
-    _hot_redis_type = types.SortedSerializedObjectSet
+    _hot_redis_type = hot_redis.blist.SortedSerializedObjectSet
 
     def __init__(self, serializer, key, shared_field=False, *args, **kwargs):
         super(SortedSerializedObjectSet, self).__init__(
