@@ -5,7 +5,6 @@ from hot_redis.contrib.django.connection import get_redis_connection
 from hot_redis import hot_redis, types
 
 
-
 class Field(object):
     __metaclass__ = ABCMeta
     _key_base = None

@@ -1,7 +1,8 @@
 import collections
 from tests import BaseTestCase
 
-from hot_redis import core, ObjectList
+from hot_redis import core
+
 
 class TestCounter(BaseTestCase):
     def test_value(self):

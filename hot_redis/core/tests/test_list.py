@@ -1,7 +1,7 @@
 from tests import BaseTestCase
-from hot_redis.utils import make_key
 
-from hot_redis import core, ObjectList
+from hot_redis import core
+
 
 class ListTests(BaseTestCase):
     def test_value(self):
@@ -67,16 +67,11 @@ class ListTests(BaseTestCase):
         self.assertEquals(a, b)
         # todo: slice?
 
-    def test_len(self):
-        a = ["wagwaan", "hot", "skull"]
-        b = core.List(a)
-        self.assertEquals(len(a), len(b))
-
     def test_contains(self):
         a = ["wagwaan", "hot", "skull"]
         b = core.List(a)
-        self.assertIn("wagwaan", a)
-        self.assertNotIn("hotskull", a)
+        self.assertIn("wagwaan", b)
+        self.assertNotIn("hotskull", b)
 
     def test_extend(self):
         a = ["wagwaan", "hot", "skull"]
@@ -147,4 +142,3 @@ class ListTests(BaseTestCase):
         a.sort(reverse=True)
         b.sort(reverse=True)
         self.assertEquals(a, b)
-

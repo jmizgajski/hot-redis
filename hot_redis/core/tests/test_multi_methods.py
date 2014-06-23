@@ -1,7 +1,8 @@
 from tests import BaseTestCase
 from hot_redis.utils import make_key, prefix_key
 
-from hot_redis import core, ObjectList
+from hot_redis import core
+
 
 class LuaMultiMethodsTests(BaseTestCase):
     def setUp(self):

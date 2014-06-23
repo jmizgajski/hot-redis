@@ -1,7 +1,6 @@
 from tests import BaseTestCase
-from hot_redis.utils import make_key
 
-from hot_redis import core, ObjectList
+from hot_redis import core
 
 
 class StringTests(BaseTestCase):

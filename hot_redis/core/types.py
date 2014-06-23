@@ -2,18 +2,16 @@
 import collections
 from functools import partial
 import operator
-import os
 import time
 import uuid
 import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
-from hot_client import HotClient, Ranking
+from hot_client import HotClient
 from hot_redis.utils import make_key, prefix_key
 
 
 from redis import ResponseError
-from redis.client import Redis, zset_score_pairs
 from hot_redis.core.transactions import transaction
 
 _client = None
@@ -831,13 +829,15 @@ def inplace_multiset(method_name):
         other = value_left(self, other)
 
         if(isinstance(other, collections.Counter)):
-            other = [item for sublist in other.most_common() for item in sublist]
+            other = [
+                item for sublist in other.most_common() for item in sublist]
 
         getattr(self, method_name)(*other)
 
         return self
 
     return method
+
 
 class MultiSet(collections.MutableMapping, Base):
     """
@@ -862,13 +862,6 @@ class MultiSet(collections.MutableMapping, Base):
                 yield (key, count)
         else:
             raise TypeError('Nested iterable')
-                #nested_list = list(nested_iterable)  # easy way
-                #if len(nested_list) != 2:
-                #    raise ValueError(
-                #        "Nested iterable: %s has length diffrent from 2")
-                #if not isinstance(nested_list[0], basestring):
-                #    raise ValueError("Key must be instance od basestring")
-                #yield (nested_list[0], int(nested_list[1]))
 
     def __init__(
             self, initial=None, client=None,
@@ -935,7 +928,7 @@ class MultiSet(collections.MutableMapping, Base):
             except ValueError:
                 value_dict = {}
                 for x in value:
-                    if not x in value_dict.keys():
+                    if x not in value_dict.keys():
                         value_dict[x] = 1
                     else:
                         value_dict[x] = value_dict[x] + 1

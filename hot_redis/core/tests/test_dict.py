@@ -1,7 +1,7 @@
 from tests import BaseTestCase
-from hot_redis.utils import make_key
 
-from hot_redis import core, ObjectList
+from hot_redis import core
+
 
 class DictTests(BaseTestCase):
     def test_value(self):
@@ -81,8 +81,8 @@ class DictTests(BaseTestCase):
     def test_contains(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
         b = core.Dict(a)
-        self.assertIn("wagwaan", a)
-        self.assertNotIn("hotskull", a)
+        self.assertIn("wagwaan", b)
+        self.assertNotIn("hotskull", b)
 
     def test_copy(self):
         a = core.Dict({"wagwaan": "popcaan", "flute": "don"})
@@ -100,7 +100,6 @@ class DictTests(BaseTestCase):
         b = "popcaan"
         c = core.Dict.fromkeys(a)
         self.assertItemsEqual(a, c.keys())
-        ccc = c
         self.assertFalse(c["wagwaan"])
         c = core.Dict.fromkeys(a, b)
         self.assertEquals(c["wagwaan"], b)
