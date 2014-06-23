@@ -51,7 +51,10 @@ def prefix_key(key):
 
     if REDIS_TEST:
         prefix = REDIS_TEST_PREFIX or DEFAULT_TEST_PREFIX
-        return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
+        if key.find(prefix) == 0:
+            return key
+        else:
+            return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
 
     return key
 

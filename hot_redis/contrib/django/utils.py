@@ -12,6 +12,9 @@ def prefix_key(key):
     if getattr(settings, 'REDIS_TEST', False):
         prefix = getattr(
             settings, 'REDIS_TEST_KEY_PREFIX', DEFAULT_TEST_PREFIX)
-        return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
+        if key.find(prefix) == 0:
+            return key
+        else:
+            return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
 
     return key
