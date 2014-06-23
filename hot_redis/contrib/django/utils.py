@@ -2,6 +2,7 @@
 from django.conf import settings
 from hot_redis.utils import KEY_SEPARATOR, DEFAULT_TEST_PREFIX
 
+
 def make_key(*parts):
     key = KEY_SEPARATOR.join(str(part) for part in parts)
 
