@@ -113,7 +113,6 @@ class Base(object):
             client = client or default_client()
         self.client = client
 
-#        self.key = redis_key or str(uuid.uuid4())
         self.key = prefix_key(make_key(redis_key) if redis_key else make_key(
             str(uuid.uuid4())))
         if initial:
