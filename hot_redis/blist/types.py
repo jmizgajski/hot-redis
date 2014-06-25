@@ -56,7 +56,6 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
         for value in values:
             yield value
 
-
     def __init__(self, iterable=None, key=None, eager_iterator=True, **kwargs):
         super(SortedSet, self).__init__(**kwargs)
         self._eager_iterator = eager_iterator
@@ -123,3 +122,19 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
     @value.setter
     def value(self, value):
         self.update(value)
+
+
+class SortedSerializedObjectSet(SortedSet):
+    def serialize(self, item):
+        return self.serializer.serialize(item)
+
+    def prepare(self, item):
+        return self.serializer.prepare(item)
+
+    def deserialize(self, string):
+        return self.serializer.deserialize(string)
+
+    def __init__(self, serializer, key, **kwargs):
+        super(SortedSerializedObjectSet, self).__init__(key=key,
+                                                        **kwargs)
+        self.serializer = serializer

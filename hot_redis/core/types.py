@@ -1,224 +1,18 @@
 # -*- coding: utf-8 -*-
 import collections
+from functools import partial
 import operator
-import os
 import time
 import uuid
+import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
+from hot_client import HotClient
+from hot_redis.utils import make_key, prefix_key
+
 
 from redis import ResponseError
-from redis.client import Redis, zset_score_pairs
-
-
-class Ranking(object):
-    def __init__(self, ranking_script, keys_, *script_args):
-        if len(keys_) < 2:
-            raise ValueError("You have to have at least two lists to compare")
-
-        self.keys = keys_
-        self.ranker = ranking_script
-        self.script_args = script_args
-
-    def __getitem__(self, i):
-        if not isinstance(i, slice):
-            args = [i, i]
-            args.extend(self.script_args)
-            response = self.ranker(keys=self.keys, args=args)
-            return zset_score_pairs(response, withscores=True)
-
-        start = i.start if i.start is not None else 0
-        stop = i.stop if i.stop is not None else 0
-
-        args = [start, stop - 1]
-        args.extend(self.script_args)
-        response = self.ranker(keys=self.keys, args=args)
-        return zset_score_pairs(response, withscores=True)
-
-    def __iter__(self):
-        return iter(self[:])
-
-
-class HotClient(object):
-    """
-    A Redis client wrapper that loads Lua functions and creates
-    client methods for calling them.
-    """
-    _ATOMS_FILE_NAME = "core_atoms.lua"
-    _BIT_FILE_NAME = "bit.lua"
-    _MULTI_FILE_NAME = "multi.lua"
-    _BLIST_FILE_NAME = "blist_atoms.lua"
-
-    def __init__(self, client=None, *args, **kwargs):
-        self._client = client
-        if not self._client:
-            self._client = Redis(*args, **kwargs)
-
-        self._bind_atoms()
-        self._bind_multi()
-        self._bind_blist()
-
-    def _bind_atoms(self):
-        with open(self._get_lua_path(self._BIT_FILE_NAME)) as f:
-            luabit = f.read()
-
-        requires_luabit = (
-            "number_and",
-            "number_or",
-            "number_xor",
-            "number_lshift",
-            "number_rshift"
-        )
-
-        for name, snippet in self._split_lua_file_into_funcs(
-                self._ATOMS_FILE_NAME):
-            if name in requires_luabit:
-                snippet = luabit + snippet
-            self._bind_lua_method(name, snippet)
-
-    def _bind_multi(self):
-        for name, snippet in self._split_lua_file_into_funcs(
-            self._MULTI_FILE_NAME):
-            self._bind_private_lua_script(name, snippet)
-
-    def _bind_blist(self):
-        for name, snippet in self._split_lua_file_into_funcs(
-            self._BLIST_FILE_NAME):
-            self._bind_lua_method(name, snippet)
-
-    @staticmethod
-    def _get_lua_path(name):
-        """
-        Joins the given name with the relative path of the module.
-        """
-        parts = (os.path.dirname(os.path.abspath(__file__)), "lua", name)
-        return os.path.join(*parts)
-
-    def _split_lua_file_into_funcs(self, file_name):
-        """
-        Returns the name / code snippet pair for each Lua function
-        in the file under file_name.
-        """
-        with open(self._get_lua_path(file_name)) as f:
-            for func in f.read().strip().split("function "):
-                if func:
-                    bits = func.split("\n", 1)
-                    name = bits[0].split("(")[0].strip()
-                    snippet = bits[1].rsplit("end", 1)[0].strip()
-                    yield name, snippet
-
-    def _bind_lua_method(self, name, code):
-        """
-        Registers the code snippet as a Lua script, and binds the
-        script to the client as a method that can be called with
-        the same signature as regular client methods, eg with a
-        single key arg.
-        """
-        script = self._client.register_script(code)
-        method = lambda key, *a, **k: script(keys=[key], args=a, **k)
-        setattr(self, name, method)
-
-    def _bind_private_lua_script(self, name, code):
-        """
-        Registers the code snippet as a Lua script, and binds the
-        script to the client as a private method (eg. some_lua_func becomes
-        a _some_lua_func method of HotClient) that can be latter wrapped in
-        public methods with better argument and error handling.
-        """
-        script = self._client.register_script(code)
-        setattr(self, '_' + name, script)
-
-    def rank_lists_by_length(self, *keys):
-        """
-        Creates a temporary ZSET with LIST keys as entries and their
-        *LLEN* as scores. Uses ZREVRANGE .. WITHSCORES, to return keys and
-        lengths sorted from longest to shortests.
-        :param keys: keys of the lists you want rank
-        :return: :rtype: Ranking :raise ValueError:
-        :raise ValueError: when not enough keys are provided
-        """
-        return Ranking(self._rank_lists_by_length, keys)
-
-    def rank_sets_by_cardinality(self, *keys):
-        """
-        Creates a temporary ZSET with SET keys as entries and their
-        *CARD* as scores. Uses ZREVRANGE .. WITHSCORES, to return keys and
-        cardinalities sorted from largest to smallest.
-        :param keys: keys of the sets you want to rank
-        :return: :rtype: Ranking
-        :raise ValueError: when not enough keys are provided
-        """
-        return Ranking(self._rank_sets_by_cardinality, keys)
-
-    def rank_zsets_by_cardinality(self, *keys):
-        """
-        Creates a temporary ZSET with SET keys as entries and their
-        *ZCARD* as scores. Uses ZREVRANGE .. WITHSCORES, to return keys and
-        cardinalities sorted from largest to smallest.
-        :param keys: keys of the sets you want to rank
-        :return: :rtype: Ranking
-        :raise ValueError: when not enough keys are provided
-        """
-        return Ranking(self._rank_zsets_by_cardinality, keys)
-
-    def rank_by_sum_of_decaying_score(
-            self, from_, halflife, cache_timeout, *keys):
-        """
-        Creates a temporary ZSET with SET keys as entries and sums of their
-        decayed (standard halflife decay function) scores as scores. Uses
-        ZREVRANGE .. WITHSCORES, to return
-        keys and these sums sorted from largest to smallest. Useful for
-        finiding recently most active zsets assuming that the score is a
-        unix timestamp.
-        :param from_: current time in unix timestamp, the difference from_ -
-        SCORE is used as age of the key in ZSET
-        :param halflife: the halflife of the decay function
-        :param cache_timeout: if greater than 0 the resulting sum of scores
-        of each ZSET in key's will be cached for that many seconds. Then
-        when this function will be called again with the same halflife the
-        cached value will be returned (from_ will have no effect)
-        :param keys: keys of the zsets you want to rank
-        :return: :rtype: Ranking
-        :raise ValueError: when not enough keys are provided
-        """
-        return Ranking(self._rank_by_sum_of_decaying_score, keys, from_,
-                       halflife, cache_timeout)
-
-    def rank_by_top_key_if_equal(self, filtering_key, *keys):
-        """
-        Creates a temporary ZSET with ZSET keys as entries and score of
-        their top element as scores if this top element is equal to
-        filtering key.
-        :param filtering_key: set whose top element has different key will
-        be filtered out
-        :param keys: keys of the zsets you want to rank
-        :return: :rtype: Ranking
-        :raise ValueError: when not enough keys are provided
-        """
-        return Ranking(self._rank_by_top_key_if_equal, keys, filtering_key)
-
-    def __getattr__(self, name):
-        if name in self.__dict__:
-            return super(HotClient, self).__getattribute__(name)
-        return self._client.__getattribute__(name)
-
-    def multi_zset_fixed_width_histogram(
-            self, from_, to, bucket_width, *keys):
-        """
-        Produces an equi-width histogram of score values from multiple
-        zsets
-        provided in keys.
-        :param from_: scores below that are not taken into account
-        :param to: scores above that are not taken into account
-        :param bucket_width: the size of the histogram bucket
-        :param keys: keys of zsets scores of which we would like to include
-        :return: a histogram (bucket_lower_bound, count) :rtype: list[
-        tuple]
-        """
-        resp = self._multi_zset_fixed_width_histogram(
-            args=[from_, to, bucket_width], keys=keys)
-        return zset_score_pairs(response=resp, withscores=True)
-
+from hot_redis.core.transactions import transaction
 
 _client = None
 _config = {}
@@ -319,7 +113,8 @@ class Base(object):
             client = client or default_client()
         self.client = client
 
-        self.key = redis_key or str(uuid.uuid4())
+        self.key = prefix_key(make_key(redis_key) if redis_key else make_key(
+            str(uuid.uuid4())))
         if initial:
             self.value = initial
 
@@ -831,7 +626,7 @@ class Queue(List):
         return self.qsize() == 0
 
     def full(self):
-        return self.maxsize > 0 and self.qsize() >= self.maxsize
+        return 0 < self.maxsize <= self.qsize()
 
     def put(self, item, block=True, timeout=None):
         if self.maxsize == 0:
@@ -1027,6 +822,22 @@ class DefaultDict(Dict):
         return self.setdefault(key, self.default_factory())
 
 
+def inplace_multiset(method_name):
+
+    def method(self, other):
+        other = value_left(self, other)
+
+        if(isinstance(other, collections.Counter)):
+            other = [
+                item for sublist in other.most_common() for item in sublist]
+
+        getattr(self, method_name)(*other)
+
+        return self
+
+    return method
+
+
 class MultiSet(collections.MutableMapping, Base):
     """
     Redis sorted set <-> Python's collections.Counter.
@@ -1049,14 +860,7 @@ class MultiSet(collections.MutableMapping, Base):
             for key, count in collections.Counter(iterable).iteritems():
                 yield (key, count)
         else:
-            for nested_iterable in iterable:
-                nested_list = list(nested_iterable)  # easy way
-                if len(nested_list) != 2:
-                    raise ValueError(
-                        "Nested iterable: %s has length diffrent from 2")
-                if not isinstance(nested_list[0], basestring):
-                    raise ValueError("Key must be instance od basestring")
-                yield (nested_list[0], int(nested_list[1]))
+            raise TypeError('Nested iterable')
 
     def __init__(
             self, initial=None, client=None,
@@ -1068,12 +872,19 @@ class MultiSet(collections.MutableMapping, Base):
     def __len__(self):
         return self.zcard()
 
+    def get(self, key, default=None):
+        val = self[key]
+        if val == 0:
+            return default
+        else:
+            return val
+
     def __getitem__(self, key):
         if not isinstance(key, basestring):
             raise ValueError("Key must be instance od basestring")
         val = self.zscore(key)
         if val is None:
-            return self.__missing__(key)
+            return 0
         return val
 
     def __iter__(self):
@@ -1099,12 +910,12 @@ class MultiSet(collections.MutableMapping, Base):
     __ror__ = op_right(operator.or_)
     __iadd__ = inplace("update")
     __isub__ = inplace("subtract")
-    __iand__ = inplace("intersection_update")
-    __ior__ = inplace("union_update")
+    __iand__ = inplace_multiset("multiset_intersection_update")
+    __ior__ = inplace_multiset("multiset_union_update")
 
     @property
     def value(self):
-        return collections.Counter(self.most_common())
+        return collections.Counter(dict(self.most_common()))
 
     @value.setter
     def value(self, value):
@@ -1113,6 +924,14 @@ class MultiSet(collections.MutableMapping, Base):
                 value = dict(value)
             except TypeError:
                 value = None
+            except ValueError:
+                value_dict = {}
+                for x in value:
+                    if x not in value_dict.keys():
+                        value_dict[x] = 1
+                    else:
+                        value_dict[x] = value_dict[x] + 1
+                value = value_dict
         if value:
             self.update(value)
 
@@ -1121,7 +940,7 @@ class MultiSet(collections.MutableMapping, Base):
         return "%s(%s, '%s')" % bits
 
     def __missing__(self, key):
-        return 0
+        return None
 
     def most_common(self, n=None):
         if n == 0:
@@ -1142,7 +961,7 @@ class MultiSet(collections.MutableMapping, Base):
             iterables.append(self._to_kv_iterable(kwds))
         if iterables:
             kvs = list(chain.from_iterable(iterables))
-            with self.pipeline() as pipe:
+            with self.client.pipeline() as pipe:
                 for key, value in kvs:
                     pipe.zincrby(self.key, key, value)
                 pipe.execute()
@@ -1155,7 +974,7 @@ class MultiSet(collections.MutableMapping, Base):
             iterables.append(self._to_kv_iterable(kwds))
         if iterables:
             kvs = list(chain.from_iterable(iterables))
-            with self.pipeline(transaction=False) as pipe:
+            with self.client.pipeline(transaction=False) as pipe:
                 for key, value in kvs:
                     pipe.zincrby(self.key, key, -value)
                 pipe.execute()
@@ -1165,3 +984,65 @@ class MultiSet(collections.MutableMapping, Base):
 
 
 collections.MutableMapping.register(MultiSet)
+
+
+class ObjectList(List):
+    serialize = partial(pc.dumps, protocol=2)
+    deserialize = pc.loads
+
+    def __setitem__(self, i, item):
+        super(ObjectList, self).__setitem__(i, self.serialize(item))
+
+    def __getitem__(self, i):
+        got = super(ObjectList, self).__getitem__(i)
+        if isinstance(i, slice):
+            return [self.deserialize(x) for x in got]
+        return self.deserialize(got)
+
+    def extend(self, other):
+        super(ObjectList, self).extend([self.serialize(v) for v in other])
+
+    def append(self, item):
+        self.extend([item])
+
+    def insert(self, i, item):
+        super(ObjectList, self).insert(i, self.serialize(item))
+
+    def pop(self, i=-1):
+        res = super(ObjectList, self).pop(i)
+        return self.deserialize(res) if res else None
+
+    def sort_by_key(self, key):
+        @transaction(self)
+        def sort_in_place(pipe):
+            """:type pipe: redis.client.Redis"""
+            new_val = sorted(self.value, key=key)
+            pipe.multi()
+            pipe.delete(self.key)
+            self.extend(new_val)
+
+        sort_in_place()
+
+
+class SerializedObjectList(ObjectList):
+    def serialize(self, item):
+        return self.serializer.serialize(item)
+
+    def prepare(self, item):
+        return self.serializer.prepare(item)
+
+    def deserialize(self, string):
+        return self.serializer.deserialize(string)
+
+    def wrap(self, dictionary):
+        return self.serializer.wrap(dictionary)
+
+    def __init__(self, serializer, **kwargs):
+        super(SerializedObjectList, self).__init__(**kwargs)
+        self.serializer = serializer
+
+    def index(self, item):
+        return self.value.index(self.wrap(self.prepare(item)))
+
+    def count(self, item):
+        return self.value.count(self.wrap(self.prepare(item)))

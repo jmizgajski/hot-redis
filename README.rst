@@ -157,3 +157,18 @@ MultiSet            collections.Counter           sorted set
 .. _`Kouio RSS reader`: https://kouio.com
 .. _`pip`: http://www.pip-installer.org/
 .. _`Bitwise Lua Operations in Redis`: http://blog.jupo.org/2013/06/12/bitwise-lua-operations-in-redis/
+
+Development
+===========
+
+Lua tests
+---------
+
+There is a simple test framework for Lua scripts, that emulates Lua environment inside Redis. To run them you will need to perform several steps:
+
+ - Install following on your system:
+    - Lua 5.1 interpreter
+    - LuaRocks
+ - Install Lua dependencies by running hot_redis/core/lua/reqs_test.sh (you may want to tweak this script if you don't want to install rocks as root).
+ - Run tests.lua with your Lua interpreter.
+ - Enjoy your tests.

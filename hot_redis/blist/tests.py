@@ -2,7 +2,7 @@
 from blist import sortedset
 
 from hot_redis.blist.types import SortedSet
-from hot_redis.core.tests import BaseTestCase
+from hot_redis.core.tests.tests import BaseTestCase
 
 
 class SortedSetTest(BaseTestCase):
@@ -110,8 +110,8 @@ class SortedSetTest(BaseTestCase):
             )
 
     def test_intersection_update(self):
-        x = set([1,2,3,4])
-        y = set([2,3,5])
+        x = set([1, 2, 3, 4])
+        y = set([2, 3, 5])
 
         a = SortedSet(x)
         b = SortedSet(y)
@@ -128,8 +128,8 @@ class SortedSetTest(BaseTestCase):
             self.assertIn(e, b)
 
     def test_intersection(self):
-        x = set([1,2,3,4])
-        y = set([2,3,5])
+        x = set([1, 2, 3, 4])
+        y = set([2, 3, 5])
 
         a = SortedSet(x)
         b = SortedSet(y)
@@ -149,8 +149,8 @@ class SortedSetTest(BaseTestCase):
             self.assertIn(e, b)
 
     def test_difference(self):
-        x = set([1,2,3,4])
-        y = set([2,3,5])
+        x = set([1, 2, 3, 4])
+        y = set([2, 3, 5])
 
         a = SortedSet(x)
         b = SortedSet(y)
@@ -175,11 +175,12 @@ class SortedSetTest(BaseTestCase):
 
     def test_symmetric_difference_update(self):
         a = SortedSet()
-        self.assertRaises(NotImplementedError, a.symmetric_difference_update, a)
+        self.assertRaises(
+            NotImplementedError, a.symmetric_difference_update, a)
 
     def test_symmetric_difference(self):
-        x = set([1,2,3])
-        y = set([2,3,4])
+        x = set([1, 2, 3])
+        y = set([2, 3, 4])
 
         a = SortedSet(x)
         b = SortedSet(y)
@@ -199,9 +200,9 @@ class SortedSetTest(BaseTestCase):
             self.assertIn(e, b)
 
     def test_disjoint(self):
-        x = set([1,2,3,4])
-        y = set([2,3,5])
-        z = set([6,7,8])
+        x = set([1, 2, 3, 4])
+        y = set([2, 3, 5])
+        z = set([6, 7, 8])
 
         a = SortedSet(x)
         b = SortedSet(y)
@@ -211,9 +212,9 @@ class SortedSetTest(BaseTestCase):
         self.assertTrue(a.isdisjoint(c))
 
     def test_cmp(self):
-        x = set([1,2,3,4])
-        y = set([2,3])
-        z = set([3,4,8])
+        x = set([1, 2, 3, 4])
+        y = set([2, 3])
+        z = set([3, 4, 8])
 
         a = SortedSet(x)
         b = SortedSet(y)
