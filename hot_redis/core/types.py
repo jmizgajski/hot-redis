@@ -8,7 +8,7 @@ import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
 from hot_client import HotClient
-from hot_redis.utils import make_key, prefix_key
+from hot_redis.contrib.django.utils import make_key, prefix_key
 
 
 from redis import ResponseError

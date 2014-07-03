@@ -45,19 +45,5 @@ def make_key(*parts):
     return key
 
 
-def prefix_key(key):
-    from test_settings import REDIS_TEST
-    from test_settings import REDIS_TEST_PREFIX
-
-    if REDIS_TEST:
-        prefix = REDIS_TEST_PREFIX or DEFAULT_TEST_PREFIX
-        if key.find(prefix) == 0:
-            return key
-        else:
-            return "%s%s%s" % (prefix, KEY_SEPARATOR,  key)
-
-    return key
-
-
 def get_class_fqn(cls):
     return '.'.join([cls.__module__, cls.__name__])

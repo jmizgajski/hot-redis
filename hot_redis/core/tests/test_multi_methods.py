@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from hot_redis.utils import make_key, prefix_key
+from hot_redis.contrib.django.utils import make_key, prefix_key
 
 from hot_redis import core
 
