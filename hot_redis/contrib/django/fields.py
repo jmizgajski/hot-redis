@@ -135,6 +135,10 @@ class String(Field):
     _hot_redis_type = hot_redis.String
 
 
+class Int(Field):
+    _hot_redis_type = hot_redis.Int
+
+
 class SerializedObjectList(Field):
     _hot_redis_type = hot_redis.SerializedObjectList
 
