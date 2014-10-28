@@ -143,6 +143,11 @@ class String(Field):
 class Int(Field):
     _hot_redis_type = hot_redis.Int
 
+class Set(Field):
+    _hot_redis_type = hot_redis.Set
+
+class Dict(Field):
+    _hot_redis_type = hot_redis.Dict
 
 class SerializedObjectList(Field):
     _hot_redis_type = hot_redis.SerializedObjectList
