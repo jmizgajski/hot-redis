@@ -46,16 +46,21 @@ class Field(object):
         :param instance:
         :return: redis key
         """
-        if not self._shared_field:
-            try:
-                instance_id_string = get_instance_id(instance)
-                return make_key(
-                    self._key_base,
-                    instance_id_string,
-                    self._name
-                )
-            except ValueError:
-                raise ValueError("Instance should have 'id' or 'pk' field")
+        if self._shared_field:
+            return make_key(
+                self._key_base,
+                self._name
+            )
+        try:
+            instance_id_string = get_instance_id(instance)
+            return make_key(
+                self._key_base,
+                instance_id_string,
+                self._name
+            )
+        except ValueError:
+            raise ValueError("Instance should have 'id' or 'pk' field")
+
 
     # Invoked by django model metaclasses
     def contribute_to_class(self, cls, name, virtual_only=False):
