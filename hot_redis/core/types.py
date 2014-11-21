@@ -138,6 +138,9 @@ class Base(object):
             raise
         return lambda *a, **k: func(self.key, *a, **k)
 
+    def expire(self, ttl):
+        self.client.expire(self.key, ttl)
+
 
 class Bitwise(Base):
     """
