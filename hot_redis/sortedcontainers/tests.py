@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from blist import sortedset
-
-from hot_redis.blist.types import SortedSet
+from sortedcontainers import sortedset
+from hot_redis.sortedcontainers.types import SortedSet
 from hot_redis.core.tests.tests import BaseTestCase
 
 
 class SortedSetTest(BaseTestCase):
     def test_value(self):
-        a = sortedset({
+        a = sortedset.SortedSet({
             3,
             5,
             8
@@ -15,10 +14,10 @@ class SortedSetTest(BaseTestCase):
         self.assertEquals(SortedSet(a), a)
 
     def test_empty(self):
-        self.assertEquals(SortedSet(), sortedset())
+        self.assertEquals(SortedSet(), sortedset.SortedSet())
 
     def test_add(self):
-        a = sortedset({1, 2, 3})
+        a = sortedset.SortedSet({1, 2, 3})
         b = SortedSet(a)
         i = 4
         a.add(i)
@@ -26,9 +25,9 @@ class SortedSetTest(BaseTestCase):
         self.assertEquals(b, a)
 
     def test_update(self):
-        a = sortedset({1, 2, 3})
-        b = sortedset({5, 6, 9})
-        c = sortedset({25, 26, 27})
+        a = sortedset.SortedSet({1, 2, 3})
+        b = sortedset.SortedSet({5, 6, 9})
+        c = sortedset.SortedSet({25, 26, 27})
         d = SortedSet(a)
         a.update(b, c)
         d.update(b, c)
@@ -65,7 +64,7 @@ class SortedSetTest(BaseTestCase):
         self.assertEquals(a.discard(4), None)
 
     def test_len(self):
-        a = sortedset({1, 2, 3})
+        a = sortedset.SortedSet({1, 2, 3})
         b = SortedSet(a)
         self.assertEquals(len(a), len(b))
 
@@ -75,7 +74,7 @@ class SortedSetTest(BaseTestCase):
         self.assertNotIn(4, a)
 
     def test_slice(self):
-        values = sortedset([
+        values = sortedset.SortedSet([
             ("kobyla", 7),
             ("ma", 6),
             ("maly", 5),
@@ -99,6 +98,8 @@ class SortedSetTest(BaseTestCase):
         for call, code in calls:
             expected = call(values)
             result = call(subject)
+            print expected, type(expected)
+            print result, type(result)
             self.assertEquals(
                 result,
                 expected,

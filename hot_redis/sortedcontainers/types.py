@@ -3,7 +3,7 @@ import collections
 from itertools import chain
 import cPickle as pc
 
-import blist
+from sortedcontainers import sortedset
 from redis import WatchError
 
 from hot_redis import Base
@@ -25,9 +25,13 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
         start = i.start if i.start is not None else 0
         stop = i.stop if i.stop is not None else 0
-        return blist.sortedset([
-            self.deserialize(instance)
-            for instance in self.zrange(start, stop - 1)])
+        return sortedset.SortedListWithKey(
+            [
+                self.deserialize(instance)
+                for instance in self.zrange(start, stop - 1)
+            ],
+            key=self._key_producer
+        )
 
     def __len__(self):
         return self.zcard()
@@ -115,7 +119,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
     @property
     def value(self):
-        return blist.sortedset(
+        return sortedset.SortedSet(
             (self.deserialize(value) for value in self.zrange(0, -1)),
             self._key_producer)
 

@@ -14,7 +14,7 @@ setup(
     install_requires=[
         "sphinx-me",
         "redis",
-        "blist"
+        "sortedcontainers"
     ],
     zip_safe=False,
     include_package_data=True,
