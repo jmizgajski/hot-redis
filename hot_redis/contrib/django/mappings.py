@@ -2,6 +2,7 @@
 from abc import ABCMeta, abstractmethod
 import cPickle as pc
 from collections import namedtuple
+from itertools import imap, izip
 
 
 class Extractor(object):
