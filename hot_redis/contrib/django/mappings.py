@@ -91,3 +91,76 @@ class ModelMappingType(MappingType):
     @classmethod
     def deserialize(cls, pickle):
         return cls.wrap(pc.loads(pickle))
+        
+        
+# TODO: write comprehensive tests - this is tested only in production with 
+# internal tests
+class LightweightModelMappingType(ModelMappingType):
+    """
+    This is a lightweight (in terms of Redis memory footprint) but more verbose
+    alternative to ModelMappingType. Key assumption:
+
+    - fields are serialized in order they are provided in meta with str method
+
+    - example:
+
+        class A(LightweightModelMappingType):
+            class Meta(object):
+                fields = ('id', 'other_id')
+                deserializers = (int, int)
+
+        When given a model with id=12 and other_id=44 will serialize to "12;44"
+
+    - order of fields in Meta.fields matters
+
+    - order of deserializers in Meta.deserializers matters and should
+    correspond to the the order of Meta.fields
+
+    - if None is provided for a deserializer the output type will be string
+
+    - use Extractor class to prepare field for serialization - for example
+    you can convert datetimes to unix time (saves space) and provide a
+    deserializer that will parse the unix time and convert back to datetime
+
+    - your fields MUST NOT contain the SEPARATOR character
+
+    - if you change the order of fields in production you have to recreate your
+    Redis database or convert it to new format
+
+    - Keys will be serialized in order in which they are defined in meta
+    Changing an order of fields in Meta without recreation will cause errors!
+
+    - bonus: fields are readable to other programming languages
+
+    """
+    SEPARATOR = ";"
+
+    class Meta(object):
+        model = None
+        fields = ('id',)
+        deserializers = (int,)
+
+    @classmethod
+    def serialize(cls, obj):
+        prepared = cls.prepare(obj)
+        return cls.SEPARATOR.join(
+            [str(prepared[field]) for field in cls.Meta.fields])
+
+    @classmethod
+    def wrap(cls, dictionary):
+        tpl = namedtuple(
+            "%sCache" % cls.Meta.model.__name__,
+            cls.Meta.fields
+        )
+        return tpl(**dictionary)
+
+    @classmethod
+    def deserialize(cls, serialized):
+        if isinstance(serialized, str):
+            return cls.wrap(dict(imap(
+                lambda (f, d, v): (f, d(v)) if d else (f, v),
+                izip(
+                    cls.Meta.fields,
+                    cls.Meta.deserializers,
+                    serialized.split(cls.SEPARATOR))
+                )))
