@@ -3,7 +3,7 @@ import collections
 from itertools import chain
 import cPickle as pc
 
-from sortedcontainers import sortedset
+import sortedcontainers
 from redis import WatchError
 
 from hot_redis import Base
@@ -25,7 +25,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
         start = i.start if i.start is not None else 0
         stop = i.stop if i.stop is not None else 0
-        return sortedset.SortedListWithKey(
+        return sortedcontainers.sortedset.SortedListWithKey(
             [
                 self.deserialize(instance)
                 for instance in self.zrange(start, stop - 1)
@@ -119,7 +119,7 @@ class SortedSet(collections.Sequence, collections.MutableSet, Base):
 
     @property
     def value(self):
-        return sortedset.SortedSet(
+        return sortedcontainers.sortedset.SortedSet(
             (self.deserialize(value) for value in self.zrange(0, -1)),
             self._key_producer)
 
