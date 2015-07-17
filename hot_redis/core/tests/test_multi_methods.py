@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from hot_redis.contrib.django.utils import make_key, prefix_key
+from hot_redis.utils import make_key, prefix_key
 
 from hot_redis import core
 
@@ -23,7 +23,6 @@ class LuaMultiMethodsTests(BaseTestCase):
         ]
 
         client = core.default_client()
-
         calls = [
             (lambda i: [x for x in i], 'iter'),
             (lambda i: i[:], '[:]'),

@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
-from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.core.connection import get_redis_connection
 from hot_redis.contrib.django.case import ClearRedisTestCase
-from hot_redis.contrib.django.utils import make_key
+from hot_redis.utils import make_key
 from hot_redis.core.types import ObjectList
 
 

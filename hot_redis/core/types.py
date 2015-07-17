@@ -7,27 +7,23 @@ import uuid
 import cPickle as pc
 from Queue import Empty as QueueEmpty, Full as QueueFull
 from itertools import chain, repeat
-from hot_client import HotClient
-from hot_redis.contrib.django.utils import make_key, prefix_key
-
 
 from redis import ResponseError
+
+from hot_redis.core.connection import get_redis_connection
+from hot_client import HotClient
+from hot_redis.utils import make_key, prefix_key
 from hot_redis.core.transactions import transaction
 
+
 _client = None
-_config = {}
 
 
 def default_client():
     global _client
     if _client is None:
-        _client = HotClient(**_config)
+        _client = get_redis_connection()
     return _client
-
-
-def configure(config):
-    global _config
-    _config = config
 
 
 ####################################################################
@@ -107,10 +103,10 @@ class Base(object):
     """
 
     def __init__(self, initial=None, redis_key=None, client=None):
+        if not client:
+            client = default_client()
         if not isinstance(client, HotClient):
-            client = HotClient(client) or default_client()
-        else:
-            client = client or default_client()
+            client = HotClient(client)
         self.client = client
 
         self.key = prefix_key(make_key(redis_key) if redis_key else make_key(

@@ -5,7 +5,7 @@ from django.utils.unittest.case import TestCase
 class TestConnection(TestCase):
 
     def test_get_connection_from_settings(self):
-        from hot_redis.contrib.django.connection import (
+        from hot_redis.core.connection import (
             get_redis_connection, HotClient)
 
         redis = get_redis_connection()

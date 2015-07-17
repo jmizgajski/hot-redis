@@ -1,12 +1,9 @@
 # -*- coding: utf8 -*-
 from unittest import TestCase
+
+from hot_redis.core.connection import get_redis_connection
+
 from hot_redis.utils import delete_by_pattern
-from hot_redis.core.hot_client import HotClient
-from test_settings import HOT_REDIS
-
-
-def get_redis_connection():
-    return HotClient(**HOT_REDIS)
 
 
 class TestDeleteByPattern(TestCase):

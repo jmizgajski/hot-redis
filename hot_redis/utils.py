@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+django_settings = None
+try:
+    from django.conf import settings
+except ImportError:
+    pass
+else:
+    django_settings = settings
 
 
 def get_instance_id(instance):
@@ -68,3 +75,14 @@ def make_key(*parts):
 
 def get_class_fqn(cls):
     return '.'.join([cls.__module__, cls.__name__])
+
+
+def prefix_key(key):
+    if django_settings and getattr(django_settings, 'REDIS_TEST', False):
+        prefix = getattr(
+            django_settings, 'REDIS_TEST_KEY_PREFIX', DEFAULT_TEST_PREFIX)
+        if key.find(prefix) == 0:
+            return key
+        else:
+            return "%s%s%s" % (prefix, KEY_SEPARATOR, key)
+    return key

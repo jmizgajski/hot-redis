@@ -1,7 +1,8 @@
 # -*- coding: utf8 -*-
 from abc import ABCMeta
+
 from hot_redis.utils import make_key, get_instance_id, get_class_fqn
-from hot_redis.contrib.django.connection import get_redis_connection
+from hot_redis.core.connection import get_redis_connection
 import hot_redis
 
 
@@ -60,7 +61,6 @@ class Field(object):
             )
         except ValueError:
             raise ValueError("Instance should have 'id' or 'pk' field")
-
 
     # Invoked by django model metaclasses
     def contribute_to_class(self, cls, name, virtual_only=False):
@@ -143,11 +143,14 @@ class String(Field):
 class Int(Field):
     _hot_redis_type = hot_redis.Int
 
+
 class Set(Field):
     _hot_redis_type = hot_redis.Set
 
+
 class Dict(Field):
     _hot_redis_type = hot_redis.Dict
+
 
 class SerializedObjectList(Field):
     _hot_redis_type = hot_redis.SerializedObjectList
