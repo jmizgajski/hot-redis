@@ -19,7 +19,7 @@ def get_instance_id(instance):
     if pk:
         return str(pk)
     _id = getattr(instance, 'id', None)
-    if _id:
+    if not (_id is None):
         return str(_id)
     raise ValueError("No id field.")
 
