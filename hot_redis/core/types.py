@@ -559,7 +559,10 @@ class Int(Numeric, Bitwise):
 
     @property
     def value(self):
-        return int(float(self.get() or 0))
+        raw = self.get() or '0'
+        if raw[-1:] == 'L':
+            raw = raw[:-1]
+        return int(float(raw))
 
     @value.setter
     def value(self, value):
