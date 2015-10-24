@@ -68,7 +68,7 @@ KEY_SEPARATOR = '.'
 
 
 def make_key(*parts):
-    key = KEY_SEPARATOR.join(str(part) for part in parts)
+    key = KEY_SEPARATOR.join(unicode(part) for part in parts)
 
     return key
 
