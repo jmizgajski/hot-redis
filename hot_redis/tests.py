@@ -15,8 +15,6 @@ def base_wrapper(init):
     def wrapper(*args, **kwargs):
         init(*args, **kwargs)
         keys.append(args[0].key)
-
-
     return wrapper
 
 
@@ -52,7 +50,7 @@ class LuaMultiMethodsTests(BaseTestCase):
             (lambda i: i[-4:3], '[-4:3]'),
             (lambda i: i[2:], '[2:]'),
             (lambda i: i[:2], '[:2]'),
-            #empty),
+            # empty),
             (lambda i: i[2:1], '[2:1]'),
             (lambda i: i[-1:-2], '[-1:-2]')
         ]
@@ -91,7 +89,7 @@ class LuaMultiMethodsTests(BaseTestCase):
             (lambda i: i[-4:3], '[-4:3]'),
             (lambda i: i[2:], '[2:]'),
             (lambda i: i[:2], '[:2]'),
-            #empty),
+            # empty),
             (lambda i: i[2:1], '[2:1]'),
             (lambda i: i[-1:-2], '[-1:-2]')
         ]
@@ -556,7 +554,6 @@ class DictTests(BaseTestCase):
         b = "popcaan"
         c = hot_redis.Dict.fromkeys(a)
         self.assertItemsEqual(a, c.keys())
-        ccc = c
         self.assertFalse(c["wagwaan"])
         c = hot_redis.Dict.fromkeys(a, b)
         self.assertEquals(c["wagwaan"], b)
@@ -959,7 +956,7 @@ class QueueTests(BaseTestCase):
 class CounterTest(object):
     def test_value(self):
         a = "wagwaan"
-        b = {"hot": 420, "skull": -9000}
+        b = {"hot": 420, "skull":-9000}
         c = collections.Counter(a)
         d = hot_redis.MultiSet(a)
         e = collections.Counter(**b)
@@ -972,7 +969,7 @@ class CounterTest(object):
 
     def test_values(self):
         a = "wagwaan"
-        b = {"hot": 420, "skull": -9000}
+        b = {"hot": 420, "skull":-9000}
         c = collections.Counter(a)
         d = hot_redis.MultiSet(a)
         e = collections.Counter(**b)
@@ -982,7 +979,7 @@ class CounterTest(object):
 
     def test_get(self):
         a = "wagwaan"
-        b = {"hot": 420, "skull": -9000}
+        b = {"hot": 420, "skull":-9000}
         c = collections.Counter(a)
         d = hot_redis.MultiSet(a)
         e = collections.Counter(**b)

@@ -674,7 +674,7 @@ class ImmutableString(String):
     """
 
     def __iadd__(self, other):
-        self.key = self.__class__(self + other).key
+        self.key = self.__class__(self +other).key
         return self
 
     def __imul__(self, i):
