@@ -309,7 +309,10 @@ class Numeric(Base):
     __add__ = op_left(operator.add)
     __sub__ = op_left(operator.sub)
     __mul__ = op_left(operator.mul)
-    __div__ = op_left(operator.div)
+    try:
+        __div__ = op_left(operator.div)
+    except AttributeError:
+        pass  # removed in python 3
     __floordiv__ = op_left(operator.floordiv)
     __truediv__ = op_left(operator.truediv)
     __mod__ = op_left(operator.mod)
@@ -318,7 +321,10 @@ class Numeric(Base):
     __radd__ = op_right(operator.add)
     __rsub__ = op_right(operator.sub)
     __rmul__ = op_right(operator.mul)
-    __rdiv__ = op_right(operator.div)
+    try:
+        __rdiv__ = op_right(operator.div)
+    except AttributeError:
+        pass  # removed in python 3
     __rtruediv__ = op_right(operator.truediv)
     __rfloordiv__ = op_right(operator.floordiv)
     __rmod__ = op_right(operator.mod)
