@@ -33,6 +33,9 @@ class BaseTestCase(unittest.TestCase):
         while keys:
             client.delete(keys.pop())
 
+    if not hasattr(unittest.TestCase, 'assertCountEqual'):
+        assertCountEqual = unittest.TestCase.assertItemsEqual
+
 
 class LuaMultiMethodsTests(BaseTestCase):
     def setUp(self):
@@ -483,19 +486,19 @@ class DictTests(BaseTestCase):
 
     def test_iter(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
-        self.assertItemsEqual(iter(a), iter(hot_redis.Dict(a)))
+        self.assertCountEqual(iter(a), iter(hot_redis.Dict(a)))
 
     def test_keys(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
-        self.assertItemsEqual(a.keys(), hot_redis.Dict(a).keys())
+        self.assertCountEqual(a.keys(), hot_redis.Dict(a).keys())
 
     def test_values(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
-        self.assertItemsEqual(a.values(), hot_redis.Dict(a).values())
+        self.assertCountEqual(a.values(), hot_redis.Dict(a).values())
 
     def test_items(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
-        self.assertItemsEqual(a.items(), hot_redis.Dict(a).items())
+        self.assertCountEqual(a.items(), hot_redis.Dict(a).items())
 
     def test_setdefault(self):
         a = {"wagwaan": "popcaan", "flute": "don"}
@@ -563,7 +566,7 @@ class DictTests(BaseTestCase):
         a = ["wagwaan", "hot", "skull"]
         b = "popcaan"
         c = hot_redis.Dict.fromkeys(a)
-        self.assertItemsEqual(a, c.keys())
+        self.assertCountEqual(a, c.keys())
         self.assertFalse(c["wagwaan"])
         c = hot_redis.Dict.fromkeys(a, b)
         self.assertEqual(c["wagwaan"], b)
@@ -984,8 +987,8 @@ class CounterTest(object):
         d = hot_redis.MultiSet(a)
         e = collections.Counter(**b)
         f = hot_redis.MultiSet(**b)
-        self.assertItemsEqual(c.values(), d.values())
-        self.assertItemsEqual(e.values(), f.values())
+        self.assertCountEqual(c.values(), d.values())
+        self.assertCountEqual(e.values(), f.values())
 
     def test_get(self):
         a = "wagwaan"
@@ -1097,8 +1100,8 @@ class CounterTest(object):
         d = hot_redis.MultiSet(a)
         e = collections.Counter(**b)
         f = hot_redis.MultiSet(**b)
-        self.assertItemsEqual(c.elements(), d.elements())
-        self.assertItemsEqual(e.elements(), f.elements())
+        self.assertCountEqual(c.elements(), d.elements())
+        self.assertCountEqual(e.elements(), f.elements())
 
     def test_most_common(self):
         a = "wanwaa"
