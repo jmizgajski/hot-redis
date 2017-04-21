@@ -401,6 +401,9 @@ class List(Sequential):
     def sort(self, reverse=False):
         self._dispatch("sort")(desc=reverse, store=self.key, alpha=True)
 
+    def clear(self):
+        self.delete()
+
 
 class Set(Bitwise):
     """

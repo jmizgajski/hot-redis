@@ -234,6 +234,11 @@ class ListTests(BaseTestCase):
             b.pop(20)
             self.assertEquals(a, b)
 
+        def test_clear(self):
+            a = hot_redis.List(["wagwaan", "hot", "skull"])
+            a.clear()
+            self.assertEquals(len(a), 0)
+
         def test_reverse(self):
             a = ["wagwaan", "hot", "skull"]
             b = hot_redis.List(a)
