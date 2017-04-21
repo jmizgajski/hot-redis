@@ -55,6 +55,7 @@ class HotClient(object):
     def __init__(self, client=None, *args, **kwargs):
         self._client = client
         if not self._client:
+            kwargs.setdefault('decode_responses', True)
             self._client = Redis(*args, **kwargs)
 
         self._bind_atoms()
