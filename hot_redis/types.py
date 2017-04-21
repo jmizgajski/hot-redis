@@ -1,15 +1,23 @@
+from __future__ import absolute_import, unicode_literals
+
 import collections
+from itertools import chain, repeat
 import operator
 import os
 import time
 import uuid
-from Queue import Empty as QueueEmpty, Full as QueueFull
-from itertools import chain, repeat
-from redis import ResponseError
-from redis.client import Redis
 
+from redis import ResponseError
 import redis
+from redis.client import Redis
 from redis.client import Redis, zset_score_pairs
+
+
+try:
+    from Queue import Empty as QueueEmpty, Full as QueueFull
+except ImportError:
+    from queue import Empty as QueueEmpty, Full as QueueFull
+    from functools import reduce
 
 
 class Ranking(object):

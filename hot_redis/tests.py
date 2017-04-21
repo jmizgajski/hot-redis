@@ -1,11 +1,17 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, unicode_literals
 
 import collections
 import time
-import Queue
 import unittest
 
 import hot_redis
+
+
+try:
+    import Queue as queue
+except ImportError:
+    import queue
 
 
 keys = []
@@ -875,12 +881,12 @@ class QueueTests(BaseTestCase):
         self.assertIn(a, q)
         q.put(b)
         self.assertIn(b, q)
-        self.assertRaises(Queue.Full, lambda: q.put("popcaan", block=False))
+        self.assertRaises(queue.Full, lambda: q.put("popcaan", block=False))
         start = time.time()
         timeout = 2
         try:
             q.put("popcaan", timeout=timeout)
-        except Queue.Full:
+        except queue.Full:
             pass
         self.assertTrue(time.time() - start >= timeout)
 
@@ -894,12 +900,12 @@ class QueueTests(BaseTestCase):
         self.assertNotIn(a, q)
         self.assertEquals(b, q.get())
         self.assertNotIn(b, q)
-        self.assertRaises(Queue.Empty, lambda: q.get(block=False))
+        self.assertRaises(queue.Empty, lambda: q.get(block=False))
         start = time.time()
         timeout = 2
         try:
             q.get(timeout=timeout)
-        except Queue.Empty:
+        except queue.Empty:
             pass
         self.assertTrue(time.time() - start >= timeout)
 
