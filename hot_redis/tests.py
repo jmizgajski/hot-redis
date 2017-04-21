@@ -44,7 +44,7 @@ class LuaMultiMethodsTests(BaseTestCase):
     def test_rank_lists_by_length(self):
         lengths = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("l%d" % length) for length in lengths]
-        keys_with_lengths = zip(_keys, lengths)
+        keys_with_lengths = list(zip(_keys, lengths))
         lists = [
             hot_redis.List(range(int(length)), key=key)
             for key, length
@@ -83,7 +83,7 @@ class LuaMultiMethodsTests(BaseTestCase):
     def test_rank_sets_by_cardinality(self):
         cardinalities = (61., 60., 5., 4., 3., 2., 1.)
         _keys = [("l%d" % card) for card in cardinalities]
-        keys_with_cardinalities = zip(_keys, cardinalities)
+        keys_with_cardinalities = list(zip(_keys, cardinalities))
         sets = [
             hot_redis.Set(range(int(card)), key=key)
             for key, card
