@@ -167,6 +167,8 @@ class ListTests(BaseTestCase):
             self.assertEqual(a[2:], b[2:])
             self.assertEqual(a[:], b[:])
             self.assertRaises(IndexError, lambda: b[len(b)])
+            self.assertIn("wagwaan", b)
+            self.assertNotIn("hotskull", b)
 
         def test_set(self):
             a = ["wagwaan", "hot", "skull"]
@@ -543,6 +545,8 @@ class DictTests(BaseTestCase):
         b = hot_redis.Dict(a)
         self.assertIn("wagwaan", a)
         self.assertNotIn("hotskull", a)
+        self.assertIn("wagwaan", b)
+        self.assertNotIn("hotskull", b)
 
     def test_copy(self):
         a = hot_redis.Dict({"wagwaan": "popcaan", "flute": "don"})
