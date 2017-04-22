@@ -18,6 +18,7 @@ try:
 except ImportError:
     from queue import Empty as QueueEmpty, Full as QueueFull
     from functools import reduce
+    basestring = str
 
 
 class Ranking(object):
