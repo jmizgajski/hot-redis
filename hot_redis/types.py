@@ -618,6 +618,13 @@ class Dict(Base):
         else:
             return self.get(key)
 
+    def popitem(self):
+        if not self:
+            raise KeyError('dictionary is empty')
+        for key, value in self.hscan_iter():
+            del self[key]
+            return key, value
+
     def get(self, key, default=None):
         value = self.hget(key)
         return value if value is not None else default
