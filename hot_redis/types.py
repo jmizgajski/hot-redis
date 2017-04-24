@@ -612,6 +612,17 @@ class Dict(Base):
     def iteritems(self):
         return iter(self.items())
 
+    __marker = object()
+
+    def pop(self, key, default=__marker):
+        if key in self:
+            result = self[key]
+            del self[key]
+            return result
+        if default is self.__marker:
+            raise KeyError(key)
+        return default
+
     def setdefault(self, key, value=None):
         if self.hsetnx(key, value) == 1:
             return value
