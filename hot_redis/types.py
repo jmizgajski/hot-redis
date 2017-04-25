@@ -1123,3 +1123,18 @@ class MultiSet(collections.MutableMapping, Base):
 
 
 collections.MutableMapping.register(MultiSet)
+
+
+class Deque(List):
+
+    def appendleft(self, item):
+        self.extendleft([item])
+
+    def extendleft(self, other):
+        self.lpush(*other)
+
+    def popleft(self, i=1):
+        return self.pop(i * -1)
+
+
+collections.MutableSequence.register(Deque)
