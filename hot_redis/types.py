@@ -1,15 +1,24 @@
+from __future__ import absolute_import, unicode_literals
+
 import collections
+from itertools import chain, repeat
 import operator
 import os
 import time
 import uuid
-from Queue import Empty as QueueEmpty, Full as QueueFull
-from itertools import chain, repeat
-from redis import ResponseError
-from redis.client import Redis
 
+from redis import ResponseError
 import redis
+from redis.client import Redis
 from redis.client import Redis, zset_score_pairs
+
+
+try:
+    from Queue import Empty as QueueEmpty, Full as QueueFull
+except ImportError:
+    from queue import Empty as QueueEmpty, Full as QueueFull
+    from functools import reduce
+    basestring = str
 
 
 class Ranking(object):
@@ -47,6 +56,7 @@ class HotClient(object):
     def __init__(self, client=None, *args, **kwargs):
         self._client = client
         if not self._client:
+            kwargs.setdefault('decode_responses', True)
             self._client = Redis(*args, **kwargs)
 
         self._bind_atoms()
@@ -301,7 +311,10 @@ class Numeric(Base):
     __add__ = op_left(operator.add)
     __sub__ = op_left(operator.sub)
     __mul__ = op_left(operator.mul)
-    __div__ = op_left(operator.div)
+    try:
+        __div__ = op_left(operator.div)
+    except AttributeError:
+        pass  # removed in python 3
     __floordiv__ = op_left(operator.floordiv)
     __truediv__ = op_left(operator.truediv)
     __mod__ = op_left(operator.mod)
@@ -310,7 +323,10 @@ class Numeric(Base):
     __radd__ = op_right(operator.add)
     __rsub__ = op_right(operator.sub)
     __rmul__ = op_right(operator.mul)
-    __rdiv__ = op_right(operator.div)
+    try:
+        __rdiv__ = op_right(operator.div)
+    except AttributeError:
+        pass  # removed in python 3
     __rtruediv__ = op_right(operator.truediv)
     __rfloordiv__ = op_right(operator.floordiv)
     __rmod__ = op_right(operator.mod)
@@ -400,6 +416,9 @@ class List(Sequential):
 
     def sort(self, reverse=False):
         self._dispatch("sort")(desc=reverse, store=self.key, alpha=True)
+
+    def clear(self):
+        self.delete()
 
 
 class Set(Bitwise):
@@ -593,11 +612,29 @@ class Dict(Base):
     def iteritems(self):
         return iter(self.items())
 
+    __marker = object()
+
+    def pop(self, key, default=__marker):
+        if key in self:
+            result = self[key]
+            del self[key]
+            return result
+        if default is self.__marker:
+            raise KeyError(key)
+        return default
+
     def setdefault(self, key, value=None):
         if self.hsetnx(key, value) == 1:
             return value
         else:
             return self.get(key)
+
+    def popitem(self):
+        if not self:
+            raise KeyError('dictionary is empty')
+        for key, value in self.hscan_iter():
+            del self[key]
+            return key, value
 
     def get(self, key, default=None):
         value = self.hget(key)
@@ -671,7 +708,7 @@ class ImmutableString(String):
     """
 
     def __iadd__(self, other):
-        self.key = self.__class__(self + other).key
+        self.key = self.__class__(self +other).key
         return self
 
     def __imul__(self, i):
@@ -1086,3 +1123,18 @@ class MultiSet(collections.MutableMapping, Base):
 
 
 collections.MutableMapping.register(MultiSet)
+
+
+class Deque(List):
+
+    def appendleft(self, item):
+        self.extendleft([item])
+
+    def extendleft(self, other):
+        self.lpush(*other)
+
+    def popleft(self, i=1):
+        return self.pop(i * -1)
+
+
+collections.MutableSequence.register(Deque)
